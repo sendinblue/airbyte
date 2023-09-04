@@ -10,7 +10,6 @@ connectionSpecification:
     - client_id
     - client_secret
     - refresh_token
-    - sobject
   additionalProperties: false
   properties:
     client_id:

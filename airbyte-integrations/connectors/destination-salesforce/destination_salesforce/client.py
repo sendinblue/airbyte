@@ -53,7 +53,6 @@ class SalesforceClient:
             sf = Salesforce(instance_url= self.instance_url, session_id= self.access_token)
 
         self.instance = sf
-        print('-- Log successfully')
 
     def describe(self):
         sf = self.instance
@@ -65,7 +64,6 @@ class SalesforceClient:
 
     def transform(self, record: Mapping):
         record = {k: v for k, v in record.items() if v is not None}
-        print("-- transform :", record)
         return record
 
 
@@ -81,7 +79,6 @@ class SalesforceClient:
         try:
             sf = self.instance
             getattr(sf.bulk, self.sobject).upsert(data = self.write_buffer, external_id_field = 'Id', batch_size = self.batch_size, use_serial=True)
-            print('-- ALL GOOD')
         except SalesforceExpiredSession as err:
             if err.response.status_code == requests.codes.BAD_REQUEST:
                 if error_message := AUTHENTICATION_ERROR_MESSAGE_MAPPING.get(err.response.json().get("error_description")):
