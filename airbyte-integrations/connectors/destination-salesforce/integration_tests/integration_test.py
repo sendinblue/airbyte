@@ -41,8 +41,8 @@ def configured_catalog_fixture() -> ConfiguredAirbyteCatalog:
     }
 
     append_stream = ConfiguredAirbyteStream(
-        stream=AirbyteStream(name="append_stream", json_schema=stream_schema, supported_sync_modes=[SyncMode.incremental]),
-        sync_mode=SyncMode.incremental,
+        stream=AirbyteStream(name="append_stream", json_schema=stream_schema, supported_sync_modes=[SyncMode.full_refresh]),
+        sync_mode=SyncMode.full_refresh,
         destination_sync_mode=DestinationSyncMode.append,
     )
     return ConfiguredAirbyteCatalog(streams=[append_stream])
