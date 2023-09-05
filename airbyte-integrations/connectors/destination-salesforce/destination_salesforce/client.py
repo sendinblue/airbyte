@@ -1,14 +1,12 @@
 import requests
 from typing import Any, Mapping
-from simple_salesforce import Salesforce, SalesforceExpiredSession
+from simple_salesforce import Salesforce
+from logging import getLogger
 
 from airbyte_cdk.utils import AirbyteTracedException
 from airbyte_protocol.models import FailureType
 
-
-AUTHENTICATION_ERROR_MESSAGE_MAPPING = {
-    "expired access/refresh token": "The authentication to SalesForce has expired. Re-authenticate to restore access to SalesForce."
-}
+logger = getLogger("airbyte")
 
 class SalesforceClient:
     def __init__(
@@ -75,16 +73,16 @@ class SalesforceClient:
 
 
     def flush(self):
-        print(self.write_buffer)
         try:
             sf = self.instance
             getattr(sf.bulk, self.sobject).upsert(data = self.write_buffer, external_id_field = 'Id', batch_size = self.batch_size, use_serial=True)
-        except SalesforceExpiredSession as err:
-            if err.response.status_code == requests.codes.BAD_REQUEST:
-                if error_message := AUTHENTICATION_ERROR_MESSAGE_MAPPING.get(err.response.json().get("error_description")):
-                    self.login()
-        except Exception as e:
-            raise AirbyteTracedException(message=e, failure_type=FailureType.config_error)
+        except Exception as err:
+            if 'InvalidSessionId' in str(err):
+                logger.info("Expired session. Generate a new access token ...")
+                self.login()
+                self.flush()
+            else:
+                raise AirbyteTracedException(message=err, failure_type=FailureType.config_error)
 
 
 
