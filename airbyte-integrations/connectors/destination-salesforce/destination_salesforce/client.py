@@ -14,25 +14,21 @@ class SalesforceClient:
         client_id: str,
         client_secret: str,
         refresh_token: str,
-        salesforce_object: object,
         is_sandbox: bool = False ,
         batch_size: int = 10000,
+        sobject: str = 'Account',
     ) -> None:
         self.client_id = client_id
         self.client_secret = client_secret
         self.refresh_token = refresh_token
+        self.sobject = sobject
         self.is_sandbox = is_sandbox
         self.batch_size = batch_size
         self.instance = None
         self.instance_url = ""
         self.access_token = None
         self.write_buffer = []
-
-        if salesforce_object.get('custom_object'):
-            self.sobject = salesforce_object.get('custom_object')
-        else:
-            self.sobject = salesforce_object.get('standard_object')
-
+        
     def generate_token(self):
         login_url = "https://login.salesforce.com/services/oauth2/token"
         login_body = {
