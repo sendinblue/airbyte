@@ -11,23 +11,27 @@ logger = getLogger("airbyte")
 class SalesforceClient:
     def __init__(
         self,
-        client_id: str = None,
-        client_secret: str = None,
-        refresh_token: str = None,
-        is_sandbox: bool = None,
-        sobject: str = 'Account',
-        batch_size: int = 10000
+        client_id: str,
+        client_secret: str,
+        refresh_token: str,
+        salesforce_object: object,
+        is_sandbox: bool = False ,
+        batch_size: int = 10000,
     ) -> None:
         self.client_id = client_id
         self.client_secret = client_secret
         self.refresh_token = refresh_token
-        self.sobject = sobject
         self.is_sandbox = is_sandbox
         self.batch_size = batch_size
         self.instance = None
         self.instance_url = ""
         self.access_token = None
         self.write_buffer = []
+
+        if salesforce_object.get('custom_object'):
+            self.sobject = salesforce_object.get('custom_object')
+        else:
+            self.sobject = salesforce_object.get('standard_object')
 
     def generate_token(self):
         login_url = "https://login.salesforce.com/services/oauth2/token"
