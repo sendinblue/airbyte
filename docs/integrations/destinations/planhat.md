@@ -6,14 +6,11 @@ Start using Planhat on the [Planhat website](https://www.planhat.com/).
 
 ## Overview
 
-The Planhat destination connector supports Append Sync. The connector allows to create and upsert. 
+The Planhat destination connector supports Append Sync. The connector allows to create and update with bullk upsert. 
 
 ## Prerequisites
 
 Parameters: 
-* **Method**
-  * CREATE : create an object 
-  * UPSERT (bulk): create and update objects. The connector upserts 5000 items per request.
 * **Object** The object you want to push into Planhat. See the list above:
   * Asset
   * Campaign
@@ -30,6 +27,7 @@ Parameters:
   * Project
   * Sale
   * Task
+  * Ticket
   * User
   * Workspace
 * **Api Token**  See [this](https://docs.planhat.com/#authentication) to create an api token

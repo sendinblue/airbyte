@@ -18,20 +18,15 @@ class DestinationPlanhat(Destination):
     ) -> Iterable[AirbyteMessage]:
         client = PlanHatClient(**config)
 
-        http_method = client.http_method
         for message in input_messages:
             if message.type == Type.STATE:
                 yield message
             elif message.type == Type.RECORD:
                 record = message.record
-                if http_method == "PUT":
-                    client.queue_write_operation(record.data)
-                else:
-                    response = client.write(record.data)
-                    client.print_error(response, "message")
+                client.queue_write_operation(record.data)
             else:
                 continue
-        if (http_method == "PUT") and (len(client.write_buffer) != 0):
+        if len(client.write_buffer) != 0:
             client.flush()
 
     def check(self, logger: AirbyteLogger, config: Mapping[str, Any]) -> AirbyteConnectionStatus:

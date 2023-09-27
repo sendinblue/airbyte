@@ -52,8 +52,7 @@ def test_check_invalid_config():
         logger, 
         {
             "api_token": "XXXX",
-            "pobject": {"endpoint": "endusers"},
-            "pmethod": { "http_method": "PUT"}}
+            "pobject": {"endpoint": "endusers"}}
     )
     assert outcome.status == Status.FAILED
 

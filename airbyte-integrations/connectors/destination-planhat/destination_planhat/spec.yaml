@@ -9,7 +9,6 @@ connectionSpecification:
   required:
     - pobject
     - api_token
-    - pmethod
   additionalProperties: false
   properties:
     api_token:
@@ -142,6 +141,14 @@ connectionSpecification:
             endpoint:
               type: string
               const: "tasks"
+        - title: Ticket
+          additionalProperties: false
+          required:
+            - endpoint
+          properties:
+            endpoint:
+              type: string
+              const: "tickets"
         - title: User
           additionalProperties: false
           required:
@@ -158,23 +165,3 @@ connectionSpecification:
             endpoint:
               type: string
               const: "workspaces"
-    pmethod:
-      title: Method
-      type: object
-      oneOf:
-        - title: Create
-          additionalProperties: false
-          required:
-            - http_method
-          properties:
-            http_method:
-              type: string
-              const: "POST"
-        - title: Upsert
-          additionalProperties: false
-          required:
-            - http_method
-          properties:
-            http_method:
-              type: string
-              const: "PUT"
