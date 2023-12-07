@@ -2,6 +2,18 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
+    "customer.id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "campaign.id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
     "ad_group.id": {
       "description": "The ID of the ad group this ad belongs to.",
       "type": ["null", "integer"]
@@ -658,6 +670,12 @@
     "ad_group_ad.status": {
       "description": "The status of the ad group ad.",
       "type": ["null", "string"]
+    },
+    "ad_group_ad.action_items": {
+      "type": [
+        "null",
+        "string"
+      ]
     },
     "segments.date": {
       "description": "The date segment for the ad group ad data.",

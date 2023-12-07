@@ -2,6 +2,12 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
+    "customer.id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
     "campaign.accessible_bidding_strategy": {
       "description": "The accessible bidding strategy of the campaign.",
       "type": ["null", "string"]
@@ -49,6 +55,12 @@
     "campaign_budget.amount_micros": {
       "description": "The budget amount in micros allocated for the campaign.",
       "type": ["null", "integer"]
+    },
+    "campaign_budget.id": {
+      "type": [
+        "null",
+        "integer"
+      ]
     },
     "campaign.commission.commission_rate_micros": {
       "description": "The commission rate in micros for the campaign.",
@@ -220,6 +232,12 @@
       "description": "The merchant ID associated with shopping campaigns.",
       "type": ["null", "integer"]
     },
+    "campaign.shopping_setting.sales_country": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
     "campaign.start_date": {
       "description": "The start date of the campaign.",
       "type": ["null", "string"]
@@ -314,6 +332,30 @@
       "description": "The brand safety suitability settings for video ads within the campaign.",
       "type": ["null", "string"]
     },
+    "campaign.audience_setting.use_audience_grouped": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "campaign.url_expansion_opt_out": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "bidding_strategy.id": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "accessible_bidding_strategy.id": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
     "metrics.clicks": {
       "description": "Total number of clicks in the campaign.",
       "type": ["null", "integer"]
@@ -394,7 +436,10 @@
       "description": "Types of interaction events recorded in the campaign metrics.",
       "type": ["null", "array"],
       "items": {
-        "type": ["null", "string"]
+        "type": [
+          "null",
+          "string"
+        ]
       }
     },
     "metrics.value_per_conversion": {
