@@ -22,10 +22,13 @@ from .streams import (
     AdGroupAd,
     AdGroupAdLabel,
     AdGroupAdLegacy,
+    AdGroupAdPerformanceReport,
+    AdGroupAudiencePerformanceReport,
     AdGroupBiddingStrategy,
     AdGroupCriterion,
     AdGroupCriterionLabel,
     AdGroupLabel,
+    AdGroupPerformanceReport,
     AdListingGroupCriterion,
     Audience,
     BiddingStrategy,
@@ -34,12 +37,15 @@ from .streams import (
     CampaignBudget,
     CampaignCriterion,
     CampaignLabel,
+    CampaignPerformanceReport,
     ClickView,
     Customer,
     CustomerClient,
     CustomerLabel,
     DisplayKeywordView,
+    GeographicPerformanceReport,
     GeographicView,
+    KeywordsPerformanceReport,
     KeywordView,
     Label,
     LeadFormSubmissionData,
@@ -47,7 +53,7 @@ from .streams import (
     ShoppingPerformanceView,
     TopicView,
     UserInterest,
-    UserLocationView
+    UserLocationView,
 )
 from .utils import GAQL, logger, traced_exception
 
@@ -240,8 +246,6 @@ class SourceGoogleAds(AbstractSource):
         return True, None
 
     def streams(self, config: Mapping[str, Any]) -> List[Stream]:
-        print('HELLO')
-        print()
         config = self._validate_and_transform(config)
         google_api = GoogleAds(credentials=self.get_credentials(config))
 
@@ -259,10 +263,13 @@ class SourceGoogleAds(AbstractSource):
             AdGroup(**incremental_config),
             AdGroupAd(**incremental_config),
             AdGroupAdLabel(**default_config),
+            AdGroupAdPerformanceReport(**incremental_config),
+            AdGroupAudiencePerformanceReport(**incremental_config),
             AdGroupBiddingStrategy(**incremental_config),
             AdGroupCriterion(**default_config),
             AdGroupCriterionLabel(**default_config),
             AdGroupLabel(**default_config),
+            AdGroupPerformanceReport(**incremental_config),
             AdListingGroupCriterion(**default_config),
             Audience(**default_config),
             BiddingStrategy(**default_config),
@@ -274,7 +281,7 @@ class SourceGoogleAds(AbstractSource):
             CustomerLabel(**default_config),
             Label(**default_config),
             LeadFormSubmissionData(**incremental_config),
-            UserInterest(**default_config)
+            UserInterest(**default_config),
         ]
         # Metrics streams cannot be requested for a manager account.
         if non_manager_accounts:
@@ -282,6 +289,7 @@ class SourceGoogleAds(AbstractSource):
                 [
                     Campaign(**non_manager_incremental_config),
                     CampaignBudget(**non_manager_incremental_config),
+                    CampaignPerformanceReport(**non_manager_incremental_config),
                     UserLocationView(**non_manager_incremental_config),
                     AccountPerformanceReport(**non_manager_incremental_config),
                     TopicView(**non_manager_incremental_config),
@@ -289,7 +297,9 @@ class SourceGoogleAds(AbstractSource):
                     ShoppingPerformanceView(**non_manager_incremental_config),
                     AdGroupAdLegacy(**non_manager_incremental_config),
                     GeographicView(**non_manager_incremental_config),
+                    GeographicPerformanceReport(**non_manager_incremental_config),
                     KeywordView(**non_manager_incremental_config),
+                    KeywordsPerformanceReport(**non_manager_incremental_config),
                 ]
             )
 
