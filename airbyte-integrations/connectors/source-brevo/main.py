@@ -6,7 +6,7 @@
 import sys
 
 from airbyte_cdk.entrypoint import launch
-from source_sendinblue import SourceSendinblue
+from source_brevo import SourceSendinblue
 
 if __name__ == "__main__":
     source = SourceSendinblue()

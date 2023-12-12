@@ -29,10 +29,10 @@ RUN apk --no-cache add bash
 
 # copy payload code only
 COPY main.py ./
-COPY source_sendinblue ./source_sendinblue
+COPY source_brevo ./source_brevo
 
 ENV AIRBYTE_ENTRYPOINT "python /airbyte/integration_code/main.py"
 ENTRYPOINT ["python", "/airbyte/integration_code/main.py"]
 
-LABEL io.airbyte.version=0.1.0
-LABEL io.airbyte.name=airbyte/source-sendinblue
+LABEL io.airbyte.version=0.2.0
+LABEL io.airbyte.name=airbyte/source-brevo

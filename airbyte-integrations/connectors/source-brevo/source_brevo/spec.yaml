@@ -1,4 +1,4 @@
-documentationUrl: https://docs.airbyte.com/integrations/sources/sendinblue
+documentationUrl: https://docs.airbyte.com/integrations/sources/brevo
 connectionSpecification:
   $schema: http://json-schema.org/draft-07/schema#
   title: Sendinblue Spec
@@ -12,5 +12,5 @@ connectionSpecification:
       type: string
       description: >-
         Your API Key. See <a
-        href="https://developers.sendinblue.com/docs/getting-started">here</a>.
+        href="https://developers.brevo.com/docs/getting-started">here</a>.
       airbyte_secret: true

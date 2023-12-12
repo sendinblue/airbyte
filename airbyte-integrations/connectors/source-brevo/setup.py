@@ -16,8 +16,8 @@ TEST_REQUIREMENTS = [
 ]
 
 setup(
-    name="source_sendinblue",
-    description="Source implementation for Sendinblue.",
+    name="source_brevo",
+    description="Source implementation for Brevo.",
     author="Airbyte",
     author_email="contact@airbyte.io",
     packages=find_packages(),
