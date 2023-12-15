@@ -74,7 +74,7 @@
       "description": "List of feeds utilized for dynamic search ads.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "campaign.dynamic_search_ads_setting.language_code": {
@@ -93,7 +93,7 @@
       "description": "Types of parent asset fields excluded from the campaign.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "campaign.experiment_type": {
@@ -108,7 +108,7 @@
       "description": "Caps on ad serving frequency for the campaign.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "campaign.geo_target_type_setting.negative_geo_target_type": {
@@ -131,7 +131,7 @@
       "description": "Labels associated with the campaign.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "campaign.local_campaign_setting.location_source_type": {
@@ -182,7 +182,7 @@
       "description": "Types of optimization goals set for the campaign.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "campaign.optimization_score": {
@@ -213,7 +213,7 @@
       "description": "Conversion actions selected for selective optimization within the campaign.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "campaign.serving_status": {
@@ -302,7 +302,7 @@
       "description": "Restrictions applied to targeting within the campaign.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "campaign.tracking_setting.tracking_url": {
@@ -317,7 +317,7 @@
       "description": "Custom parameters added to campaign URLs.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "campaign.vanity_pharma.vanity_pharma_display_url_mode": {

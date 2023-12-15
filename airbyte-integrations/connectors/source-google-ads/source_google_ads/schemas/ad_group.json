@@ -64,7 +64,7 @@
       "description": "Field types excluded from being used as asset fields in the ad group.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "ad_group.optimized_targeting_enabled": {
@@ -83,7 +83,7 @@
       "description": "Labels associated with the ad group.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "ad_group.name": {
@@ -118,7 +118,7 @@
       "description": "Targeting restrictions defined for the ad group.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "ad_group.tracking_url_template": {
@@ -133,7 +133,7 @@
       "description": "Custom parameters for the ad group's URLs.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "ad_group.effective_cpc_bid_micros": {
