@@ -1,10 +1,48 @@
+version: 0.51.41
+
+definitions:
+  selector:
+    extractor:
+      field_path: [ ]
+  requester:
+    url_base: "https://public-fr6.engage.diabolocom.com/api/v1"
+    http_method: "GET"
+    authenticator:
+      type: ApiKeyAuthenticator
+      api_token: '{{ config[''api_key''] }}'
+      inject_into:
+        type: RequestOption
+        field_name: Private-Token
+        inject_into: header
+  retriever:
+    record_selector:
+      $ref: "#/definitions/selector"
+    paginator:
+      type: NoPagination
+    requester:
+      $ref: "#/definitions/requester"
+  base_stream:
+    retriever:
+      $ref: "#/definitions/retriever"
+  users_stream:
+    $ref: "#/definitions/base_stream"
+    $parameters:
+      name: "users"
+      primary_key: "id"
+      path: "/account/users"
+
+streams:
+  - "#/definitions/users_stream"
+check:
+  stream_names:
+    - "users"
+
 spec:
   type: Spec
   connection_specification:
     type: object
     $schema: http://json-schema.org/draft-07/schema#
     required:
-      - start_date
       - api_key
     properties:
       api_key:
@@ -12,151 +50,4 @@ spec:
         order: 1
         title: API Key
         airbyte_secret: true
-      start_date:
-        type: string
-        order: 0
-        title: Start date
-        format: date-time
-        pattern: ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$
     additionalProperties: true
-type: DeclarativeSource
-check:
-  type: CheckStream
-  stream_names:
-    - users
-streams:
-  - name: users
-    type: DeclarativeStream
-    retriever:
-      type: SimpleRetriever
-      paginator:
-        type: NoPagination
-      requester:
-        path: account/users/
-        type: HttpRequester
-        url_base: https://public-fr6.engage.diabolocom.com/api/v1/
-        http_method: GET
-        authenticator:
-          type: ApiKeyAuthenticator
-          api_token: '{{ config[''api_key''] }}'
-          inject_into:
-            type: RequestOption
-            field_name: Private-Token
-            inject_into: header
-        request_headers: {}
-        request_body_json: {}
-        request_parameters: {}
-      record_selector:
-        type: RecordSelector
-        extractor:
-          type: DpathExtractor
-          field_path:
-            - users
-    primary_key:
-      - id
-    schema_loader:
-      type: InlineSchemaLoader
-      schema:
-        type: object
-        $schema: http://json-schema.org/schema#
-        properties:
-          id:
-            type: number
-          name:
-            type: string
-          role:
-            type: string
-          email:
-            type: string
-          folder:
-            type:
-              - 'null'
-              - string
-          locale:
-            type: string
-          number:
-            type:
-              - 'null'
-              - string
-          lastName:
-            type: string
-          timezone:
-            type: string
-          createdAt:
-            type: string
-          createdBy:
-            type: string
-          firstName:
-            type: string
-          maxEmails:
-            type: number
-          profileId:
-            type: number
-          isDisabled:
-            type: boolean
-          lastLoginAt:
-            type:
-              - 'null'
-              - string
-          statusSetId:
-            type: number
-          maxTransfers:
-            type: number
-          lastUpdatedAt:
-            type: string
-          lastUpdatedBy:
-            type: string
-          skillChannels:
-            type: array
-            items:
-              type: object
-              properties:
-                skills:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      id:
-                        type: number
-                      name:
-                        type: string
-                      level:
-                        type: number
-                      disabled:
-                        type: boolean
-                channel:
-                  type: string
-          wrapupTimeout:
-            type: number
-          isLimitWrapupTime:
-            type: boolean
-          tabsManagementMode:
-            type:
-              - 'null'
-              - string
-          missedCallsThreshold:
-            type: number
-          buttonForTabActivation:
-            type: boolean
-          isAllowProlongateWrapup:
-            type: boolean
-          wrapupAdditionalTimeout:
-            type: number
-    incremental_sync:
-      type: DatetimeBasedCursor
-      cursor_field: lastUpdatedAt
-      end_datetime:
-        type: MinMaxDatetime
-        datetime: '{{ now_utc().strftime(''%Y-%m-%dT%H:%M:%SZ'') }}'
-        datetime_format: '%Y-%m-%dT%H:%M:%SZ'
-      start_datetime:
-        type: MinMaxDatetime
-        datetime: '{{ config[''start_date''] }}'
-        datetime_format: '%Y-%m-%dT%H:%M:%SZ'
-      datetime_format: '%Y-%m-%dT%H:%M:%SZ'
-      cursor_datetime_formats:
-        - '%Y-%m-%dT%H:%M:%SZ'
-version: 0.51.41
-metadata:
-  autoImportSchema:
-    users: true
