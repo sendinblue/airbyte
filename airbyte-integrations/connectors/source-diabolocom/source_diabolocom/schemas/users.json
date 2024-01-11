@@ -1,5 +1,6 @@
 {
   "$schema": "http://json-schema.org/schema#",
+  "type": "object",
   "properties": {
     "buttonForTabActivation": {
       "type": "boolean"
@@ -125,6 +126,5 @@
     "wrapupTimeout": {
       "type": "number"
     }
-  },
-  "type": "object"
+  }
 }
