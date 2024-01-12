@@ -19,8 +19,8 @@ TEST_REQUIREMENTS = [
 setup(
     name="source_diabolocom",
     description="Source implementation for Diabolocom.",
-    author="Airbyte",
-    author_email="contact@airbyte.io",
+    author="Filah Anas",
+    author_email="filah.anas@gmail.com",
     packages=find_packages(),
     install_requires=MAIN_REQUIREMENTS,
     package_data={"": ["*.json", "*.yaml", "schemas/*.json", "schemas/shared/*.json"]},
