@@ -232,12 +232,6 @@
       "description": "The merchant ID associated with shopping campaigns.",
       "type": ["null", "integer"]
     },
-    "campaign.shopping_setting.sales_country": {
-      "type": [
-        "null",
-        "string"
-      ]
-    },
     "campaign.start_date": {
       "description": "The start date of the campaign.",
       "type": ["null", "string"]
