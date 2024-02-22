@@ -27,6 +27,12 @@ class SourceGCSSpec(BaseModel):
         description="GCS path to data",
         order=1,
     )
+    
+    file_type: str = Field(
+        title="File Type",
+        description="GCS file Type",
+        order=0,
+    )
 
     service_account: str = Field(
         title="Service Account Information.",

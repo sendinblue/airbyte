@@ -21,8 +21,7 @@ def get_gcs_blobs(config):
     client = get_gcs_client(config)
     bucket = client.get_bucket(config.gcs_bucket)
     blobs = bucket.list_blobs(prefix=config.gcs_path)
-    # TODO: only support CSV initially. Change this check if implementing other file formats.
-    blobs = [blob for blob in blobs if "csv" in blob.name.lower()]
+    blobs = [blob for blob in blobs if config.file_type in blob.name.lower()]
     return blobs
 
 
@@ -50,10 +49,10 @@ def construct_file_schema(df):
     return schema
 
 
-def get_stream_name(blob):
+def get_stream_name(blob, file_type):
     blob_name = blob.name
     # Remove path from stream name
     blob_name_without_path = blob_name.split("/")[-1]
     # Remove file extension from stream name
-    stream_name = blob_name_without_path.replace(".csv", "")
+    stream_name = blob_name_without_path.replace(f".{file_type}", "")
     return stream_name

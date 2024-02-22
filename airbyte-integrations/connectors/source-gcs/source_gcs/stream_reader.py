@@ -18,12 +18,13 @@ from google.cloud import storage
 from google.oauth2 import service_account
 from source_gcs.config import Config
 
+
 ERROR_MESSAGE_ACCESS = (
     "We don't have access to {uri}. The file appears to have become unreachable during sync."
     "Check whether key {uri} exists in `{bucket}` bucket and/or has proper ACL permissions"
 )
-FILE_FORMAT = "csv"  # TODO: Change if other file formats are implemented
 
+FILE_FORMAT= ["csv", "jsonl"]
 
 class SourceGCSStreamReader(AbstractFileBasedStreamReader):
     """
@@ -76,7 +77,7 @@ class SourceGCSStreamReader(AbstractFileBasedStreamReader):
                 for blob in blobs:
                     last_modified = blob.updated.astimezone(pytz.utc).replace(tzinfo=None)
 
-                    if FILE_FORMAT in blob.name.lower() and (not start_date or last_modified >= start_date):
+                    if any(element in blob.name.lower() for element in FILE_FORMAT) and (not start_date or last_modified >= start_date):
                         uri = blob.generate_signed_url(expiration=timedelta(hours=1), version="v4")
 
                         yield RemoteFile(uri=uri, last_modified=last_modified)

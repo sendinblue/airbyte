@@ -16,7 +16,7 @@ class LegacyConfigTransformer:
     """
 
     @staticmethod
-    def _create_stream(blob: Any, legacy_prefix: str) -> Dict[str, Any]:
+    def _create_stream(blob: Any, legacy_config: dict) -> Dict[str, Any]:
         """
         Create a stream dict from a blob.
 
@@ -25,10 +25,10 @@ class LegacyConfigTransformer:
         :return: A dictionary representing the stream.
         """
         return {
-            "name": get_stream_name(blob),
-            "legacy_prefix": f"{legacy_prefix}/{blob.name.split('/')[-1]}",
+            "name": get_stream_name(blob, legacy_config.file_type),
+            "legacy_prefix": f"{legacy_config.gcs_path}/{blob.name.split('/')[-1]}",
             "validation_policy": "Emit Record",
-            "format": {"filetype": "csv"},
+            "format": {"filetype": legacy_config.file_type},
         }
 
     @classmethod
@@ -40,6 +40,6 @@ class LegacyConfigTransformer:
         :return: Transformed configuration as a dictionary.
         """
         blobs = get_gcs_blobs(legacy_config)
-        streams = [cls._create_stream(blob, legacy_config.gcs_path) for blob in blobs]
+        streams = [cls._create_stream(blob, legacy_config) for blob in blobs]
 
         return {"bucket": legacy_config.gcs_bucket, "service_account": legacy_config.service_account, "streams": streams}

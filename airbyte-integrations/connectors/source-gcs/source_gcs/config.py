@@ -3,9 +3,11 @@
 #
 
 from typing import List, Optional
+from typing import Union
 
 from airbyte_cdk.sources.file_based.config.abstract_file_based_spec import AbstractFileBasedSpec
 from airbyte_cdk.sources.file_based.config.csv_format import CsvFormat
+from airbyte_cdk.sources.file_based.config.jsonl_format import JsonlFormat
 from airbyte_cdk.sources.file_based.config.file_based_stream_config import FileBasedStreamConfig
 from pydantic import AnyUrl, Field
 
@@ -18,11 +20,8 @@ class SourceGCSStreamConfig(FileBasedStreamConfig):
         'pattern matching look <a href="https://en.wikipedia.org/wiki/Glob_(programming)">here</a>.',
         order=1,
     )
-    format: CsvFormat = Field(
-        title="Format",
-        description="The configuration options that are used to alter how to read incoming files that deviate from "
-        "the standard formatting.",
-        order=2,
+    format: Union[CsvFormat, JsonlFormat] = Field(
+        default="csv", title="File Format", description="The format of the files you'd like to replicate", order=20
     )
     legacy_prefix: Optional[str] = Field(
         title="Legacy Prefix",
@@ -77,9 +76,12 @@ class Config(AbstractFileBasedSpec):
         """
         objects_to_check = schema["properties"]["streams"]["items"]["properties"]["format"]
         if len(objects_to_check.get("allOf", [])) == 1:
-            objects_to_check["anyOf"] = objects_to_check.pop("allOf")
 
-        return super(Config, Config).replace_enum_allOf_and_anyOf(schema)
+            objects_to_check["anyOf"] = objects_to_check.pop("allOf")
+        try: 
+            return super(Config, Config).replace_enum_allOf_and_anyOf(schema)
+        except ValueError as e:
+                pass
 
     @staticmethod
     def remove_discriminator(schema) -> None:

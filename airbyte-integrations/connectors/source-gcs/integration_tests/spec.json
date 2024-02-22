@@ -227,7 +227,20 @@
                     }
                   },
                   "required": ["filetype"]
-                }
+                },
+                {
+                  "title": "Jsonl Format",
+                  "type": "object",
+                  "properties": {
+                    "filetype": {
+                      "title": "Filetype",
+                      "default": "json",
+                      "const": "json",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["filetype"]
+                },
               ]
             },
             "schemaless": {
