@@ -229,7 +229,7 @@
                   "required": ["filetype"]
                 },
                 {
-                  "title": "Jsonl Format",
+                  "title": "JSONL Format",
                   "type": "object",
                   "properties": {
                     "filetype": {
