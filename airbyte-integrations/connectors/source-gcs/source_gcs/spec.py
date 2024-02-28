@@ -34,6 +34,12 @@ class SourceGCSSpec(BaseModel):
         order=0,
     )
 
+    parser: str = Field(
+        title="File Parser",
+        description="GCS file Parser",
+        order=0,
+    )
+
     service_account: str = Field(
         title="Service Account Information.",
         airbyte_secret=True,

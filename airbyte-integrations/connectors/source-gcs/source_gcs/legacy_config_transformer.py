@@ -28,7 +28,7 @@ class LegacyConfigTransformer:
             "name": get_stream_name(blob, legacy_config.file_type),
             "legacy_prefix": f"{legacy_config.gcs_path}/{blob.name.split('/')[-1]}",
             "validation_policy": "Emit Record",
-            "format": {"filetype": legacy_config.file_type},
+            "format": {"filetype": legacy_config.parser},
         }
 
     @classmethod

@@ -234,13 +234,13 @@
                   "properties": {
                     "filetype": {
                       "title": "Filetype",
-                      "default": "json",
-                      "const": "json",
+                      "default": "jsonl",
+                      "const": "jsonl",
                       "type": "string"
                     }
                   },
                   "required": ["filetype"]
-                },
+                }
               ]
             },
             "schemaless": {
