@@ -68,11 +68,10 @@ class SourceGCSStreamReader(AbstractFileBasedStreamReader):
                 datetime.strptime(self.config.start_date, self.DATE_TIME_FORMAT) if self.config and self.config.start_date else None
             )
             prefixes = [prefix] if prefix else self.get_prefixes_from_globs(globs or [])
-            globs = globs or [None]
 
-            for prefix, glob in itertools.product(prefixes, globs):
+            for prefix in prefixes:
                 bucket = self.gcs_client.get_bucket(self.config.bucket)
-                blobs = bucket.list_blobs(prefix=prefix, match_glob=glob)
+                blobs = bucket.list_blobs(prefix=prefix)
                 for blob in blobs:
                     last_modified = blob.updated.astimezone(pytz.utc).replace(tzinfo=None)
 
