@@ -30,15 +30,6 @@
     "DeliveredMatchType": {
       "type": ["null", "string"]
     },
-    "DeviceOS": {
-      "type": ["null", "string"]
-    },
-    "TopVsOther": {
-      "type": ["null", "string"]
-    },
-    "BidMatchType": {
-      "type": ["null", "string"]
-    },
     "Language": {
       "type": ["null", "string"]
     },
@@ -163,6 +154,30 @@
       "type": ["null", "number"]
     },
     "RevenuePerAssist": {
+      "type": ["null", "number"]
+    },
+    "ImpressionSharePercent": {
+      "type": ["null", "number"]
+    },
+    "ExactMatchImpressionSharePercent": {
+      "type": ["null", "number"]
+    },
+    "AbsoluteTopImpressionSharePercent": {
+      "type": ["null", "number"]
+    },
+    "TopImpressionShareLostToRankPercent": {
+      "type": ["null", "number"]
+    },
+    "TopImpressionShareLostToBudgetPercent": {
+      "type": ["null", "number"]
+    },
+    "AbsoluteTopImpressionShareLostToRankPercent": {
+      "type": ["null", "number"]
+    },
+    "AbsoluteTopImpressionShareLostToBudgetPercent": {
+      "type": ["null", "number"]
+    },
+    "TopImpressionSharePercent": {
       "type": ["null", "number"]
     }
   }
