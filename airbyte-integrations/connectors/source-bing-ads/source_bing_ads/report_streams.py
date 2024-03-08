@@ -395,9 +395,6 @@ class AdGroupPerformanceReport(BingAdsReportingServicePerformanceStream, ABC):
         "DeviceType",
         "Network",
         "DeliveredMatchType",
-        "DeviceOS",
-        "TopVsOther",
-        "BidMatchType",
         "Language",
     ]
 
