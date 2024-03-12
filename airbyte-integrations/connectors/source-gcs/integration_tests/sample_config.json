@@ -2,6 +2,6 @@
   "gcs_path": "",
   "gcs_bucket": "airbyte-gcs-source",
   "file_type": "log",
-  "parser": "log",
+  "parser": "json",
   "service_account": "{\"type\": \"service_account\", \"project_id\": ..."
 }
