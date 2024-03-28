@@ -18,6 +18,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Iterables;
+import com.mongodb.ReadConcern;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Updates;
@@ -124,16 +125,16 @@ class MongoDbSourceAcceptanceTest extends SourceAcceptanceTest {
   }
 
   private void createTestCollections(final MongoClient mongoClient) {
-    mongoClient.getDatabase(databaseName).getCollection(collectionName).drop();
-    mongoClient.getDatabase(databaseName).getCollection(otherCollection1Name).drop();
-    mongoClient.getDatabase(databaseName).getCollection(otherCollection2Name).drop();
+    mongoClient.getDatabase(databaseName).getCollection(collectionName).withReadConcern(ReadConcern.LOCAL).drop();
+    mongoClient.getDatabase(databaseName).getCollection(otherCollection1Name).withReadConcern(ReadConcern.LOCAL).drop();
+    mongoClient.getDatabase(databaseName).getCollection(otherCollection2Name).withReadConcern(ReadConcern.LOCAL).drop();
     mongoClient.getDatabase(databaseName).createCollection(collectionName);
     mongoClient.getDatabase(databaseName).createCollection(otherCollection1Name);
     mongoClient.getDatabase(databaseName).createCollection(otherCollection2Name);
   }
 
   private void insertTestData(final MongoClient mongoClient) {
-    final MongoCollection<Document> collection = mongoClient.getDatabase(databaseName).getCollection(collectionName);
+    final MongoCollection<Document> collection = mongoClient.getDatabase(databaseName).getCollection(collectionName).withReadConcern(ReadConcern.LOCAL);
     final var objectDocument =
         new Document("testObject", new Document(NAME_FIELD, "subName").append("testField1", "testField1").append(INT_TEST_FIELD, 10)
             .append("thirdLevelDocument", new Document("data", "someData").append("intData", 1)));
@@ -158,9 +159,9 @@ class MongoDbSourceAcceptanceTest extends SourceAcceptanceTest {
 
   @Override
   protected void tearDown(final TestDestinationEnv testEnv) {
-    mongoClient.getDatabase(databaseName).getCollection(collectionName).drop();
-    mongoClient.getDatabase(databaseName).getCollection(otherCollection1Name).drop();
-    mongoClient.getDatabase(databaseName).getCollection(otherCollection2Name).drop();
+    mongoClient.getDatabase(databaseName).getCollection(collectionName).withReadConcern(ReadConcern.LOCAL).drop();
+    mongoClient.getDatabase(databaseName).getCollection(otherCollection1Name).withReadConcern(ReadConcern.LOCAL).drop();
+    mongoClient.getDatabase(databaseName).getCollection(otherCollection2Name).withReadConcern(ReadConcern.LOCAL).drop();
     mongoClient.getDatabase(databaseName).drop();
     mongoClient.close();
     recordCount = 0;
@@ -349,7 +350,7 @@ class MongoDbSourceAcceptanceTest extends SourceAcceptanceTest {
     validateAllStreamsComplete(stateMessages, List.of(
         new StreamDescriptor().withName(collectionName).withNamespace(databaseName)));
 
-    final var result = mongoClient.getDatabase(databaseName).getCollection(collectionName).insertOne(createDocument(1));
+    final var result = mongoClient.getDatabase(databaseName).getCollection(collectionName).withReadConcern(ReadConcern.LOCAL).insertOne(createDocument(1));
     final var insertedId = result.getInsertedId();
 
     // Start another sync that finds the insert change
@@ -368,7 +369,7 @@ class MongoDbSourceAcceptanceTest extends SourceAcceptanceTest {
         new StreamDescriptor().withName(collectionName).withNamespace(databaseName)));
 
     final var idFilter = new Document(DOCUMENT_ID_FIELD, insertedId);
-    mongoClient.getDatabase(databaseName).getCollection(collectionName).updateOne(idFilter, Updates.combine(Updates.set("newField", "new")));
+    mongoClient.getDatabase(databaseName).getCollection(collectionName).withReadConcern(ReadConcern.LOCAL).updateOne(idFilter, Updates.combine(Updates.set("newField", "new")));
 
     // Start another sync that finds the update change
     final List<AirbyteMessage> messages3 = runRead(configuredCatalog, Jsons.jsonNode(List.of(lastStateMessage2)));
@@ -385,7 +386,7 @@ class MongoDbSourceAcceptanceTest extends SourceAcceptanceTest {
     validateAllStreamsComplete(stateMessages3, List.of(
         new StreamDescriptor().withName(collectionName).withNamespace(databaseName)));
 
-    mongoClient.getDatabase(databaseName).getCollection(collectionName).deleteOne(idFilter);
+    mongoClient.getDatabase(databaseName).getCollection(collectionName).withReadConcern(ReadConcern.LOCAL).deleteOne(idFilter);
 
     // Start another sync that finds the delete change
     final List<AirbyteMessage> messages4 = runRead(configuredCatalog, Jsons.jsonNode(List.of(lastStateMessage3)));
@@ -589,9 +590,9 @@ class MongoDbSourceAcceptanceTest extends SourceAcceptanceTest {
   }
 
   private void insertData(final String databaseName, final String collectionName, final int numberOfDocuments) {
-    mongoClient.getDatabase(databaseName).getCollection(collectionName).drop();
+    mongoClient.getDatabase(databaseName).getCollection(collectionName).withReadConcern(ReadConcern.LOCAL).drop();
     mongoClient.getDatabase(databaseName).createCollection(collectionName);
-    final MongoCollection<Document> collection = mongoClient.getDatabase(databaseName).getCollection(collectionName);
+    final MongoCollection<Document> collection = mongoClient.getDatabase(databaseName).getCollection(collectionName).withReadConcern(ReadConcern.LOCAL);
     collection
         .insertMany(IntStream.range(0, numberOfDocuments).boxed().map(this::createDocument).toList());
   }
