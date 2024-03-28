@@ -3,7 +3,7 @@ name: Build and Push Docker image
 on:
   push:
     branches:
-      - airbyte_update_source_mongodb-v2
+      - airbyte/update_source_mongodb-v2
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
