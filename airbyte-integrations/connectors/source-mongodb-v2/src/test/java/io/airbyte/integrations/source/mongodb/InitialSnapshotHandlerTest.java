@@ -18,7 +18,7 @@ import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableSet;
-import com.mongodb.ReadConcern;
+
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
@@ -358,7 +358,7 @@ class InitialSnapshotHandlerTest {
   }
 
   private void insertDocuments(final String collectionName, final List<Document> documents) {
-    final MongoCollection<Document> collection = mongoClient.getDatabase(DB_NAME).getCollection(collectionName).withReadConcern(ReadConcern.LOCAL);
+    final MongoCollection<Document> collection = mongoClient.getDatabase(DB_NAME).getCollection(collectionName);
     collection.insertMany(documents);
   }
 

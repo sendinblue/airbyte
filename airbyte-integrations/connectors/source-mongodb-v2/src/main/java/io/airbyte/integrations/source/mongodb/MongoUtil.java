@@ -13,7 +13,6 @@ import static io.airbyte.integrations.source.mongodb.MongoConstants.SCHEMALESS_M
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.annotations.VisibleForTesting;
-import com.mongodb.ReadConcern;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
@@ -179,7 +178,7 @@ public class MongoUtil {
     try {
       final Map<String, Object> collStats = Map.of(MongoConstants.STORAGE_STATS_KEY, Map.of(), MongoConstants.COUNT_KEY, Map.of());
       final MongoDatabase mongoDatabase = mongoClient.getDatabase(stream.getStream().getNamespace());
-      final MongoCollection<Document> collection = mongoDatabase.getCollection(stream.getStream().getName()).withReadConcern(ReadConcern.LOCAL);
+      final MongoCollection<Document> collection = mongoDatabase.getCollection(stream.getStream().getName());
       final AggregateIterable<Document> output = collection.aggregate(List.of(new Document("$collStats", collStats)));
 
       try (final MongoCursor<Document> cursor = output.allowDiskUse(true).cursor()) {
@@ -282,7 +281,7 @@ public class MongoUtil {
      * This is an attempt to "survey" the documents in the collection for variance in the schema keys.
      */
     final Set<Field> discoveredFields;
-    final MongoCollection<Document> mongoCollection = mongoClient.getDatabase(databaseName).getCollection(collectionName).withReadConcern(ReadConcern.LOCAL);
+    final MongoCollection<Document> mongoCollection = mongoClient.getDatabase(databaseName).getCollection(collectionName);
     if (isSchemaEnforced) {
       discoveredFields = new HashSet<>(getFieldsInCollection(mongoCollection, sampleSize));
     } else {

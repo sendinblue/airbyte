@@ -24,7 +24,7 @@ import static org.mockito.Mockito.when;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import com.mongodb.MongoCommandException;
-import com.mongodb.ReadConcern;
+
 import com.mongodb.ServerAddress;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.ChangeStreamIterable;
@@ -145,7 +145,7 @@ class MongoDbCdcInitializerTest {
     when(mongoDatabase.watch(PIPELINE, BsonDocument.class)).thenReturn(changeStreamIterable);
     when(mongoClient.getDatabase(DATABASE)).thenReturn(mongoDatabase);
     when(mongoClient.getClusterDescription()).thenReturn(clusterDescription);
-    when(mongoDatabase.getCollection(COLLECTION).withReadConcern(ReadConcern.LOCAL)).thenReturn(mongoCollection);
+    when(mongoDatabase.getCollection(COLLECTION)).thenReturn(mongoCollection);
     when(mongoCollection.aggregate(anyList())).thenReturn(aggregateIterable);
     when(aggregateIterable.iterator()).thenReturn(aggregateCursor);
     when(aggregateCursor.hasNext()).thenReturn(true, false);

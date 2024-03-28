@@ -85,7 +85,7 @@ public class MongoUtilTest {
     when(cursor.next()).thenReturn(schemaDiscoveryResponses.get(0), schemaDiscoveryResponses.get(1));
     when(aggregateIterable.cursor()).thenReturn(cursor);
     when(mongoCollection.aggregate(any())).thenReturn(aggregateIterable);
-    when(mongoDatabase.getCollection(any()).withReadConcern(ReadConcern.LOCAL)).thenReturn(mongoCollection);
+    when(mongoDatabase.getCollection(any())).thenReturn(mongoCollection);
     when(mongoDatabase.runCommand(any())).thenReturn(authorizedCollectionsResponse);
     when(aggregateIterable.allowDiskUse(anyBoolean())).thenReturn(aggregateIterable);
     when(mongoClient.getDatabase(databaseName)).thenReturn(mongoDatabase);
@@ -113,7 +113,7 @@ public class MongoUtilTest {
     when(cursor.next()).thenReturn(schemaDiscoveryResponses.get(0));
     when(aggregateIterable.cursor()).thenReturn(cursor);
     when(mongoCollection.aggregate(any())).thenReturn(aggregateIterable);
-    when(mongoDatabase.getCollection(any()).withReadConcern(ReadConcern.LOCAL)).thenReturn(mongoCollection);
+    when(mongoDatabase.getCollection(any())).thenReturn(mongoCollection);
     when(mongoDatabase.runCommand(any())).thenReturn(authorizedCollectionsResponse);
     when(aggregateIterable.allowDiskUse(anyBoolean())).thenReturn(aggregateIterable);
     when(mongoClient.getDatabase(databaseName)).thenReturn(mongoDatabase);
@@ -151,7 +151,7 @@ public class MongoUtilTest {
     when(cursor.hasNext()).thenReturn(false);
     when(aggregateIterable.cursor()).thenReturn(cursor);
     when(mongoCollection.aggregate(any())).thenReturn(aggregateIterable);
-    when(mongoDatabase.getCollection(any()).withReadConcern(ReadConcern.LOCAL)).thenReturn(mongoCollection);
+    when(mongoDatabase.getCollection(any())).thenReturn(mongoCollection);
     when(mongoDatabase.runCommand(any())).thenReturn(authorizedCollectionsResponse);
     when(mongoClient.getDatabase(databaseName)).thenReturn(mongoDatabase);
     when(aggregateIterable.allowDiskUse(anyBoolean())).thenReturn(aggregateIterable);
@@ -178,7 +178,7 @@ public class MongoUtilTest {
     when(cursor.next()).thenReturn(schemaDiscoveryResponses.get(0), schemaDiscoveryResponses.get(1));
     when(aggregateIterable.cursor()).thenReturn(cursor);
     when(mongoCollection.aggregate(any())).thenReturn(aggregateIterable);
-    when(mongoDatabase.getCollection(any()).withReadConcern(ReadConcern.LOCAL)).thenReturn(mongoCollection);
+    when(mongoDatabase.getCollection(any())).thenReturn(mongoCollection);
     when(mongoDatabase.runCommand(any())).thenReturn(authorizedCollectionsResponse);
     when(mongoClient.getDatabase(databaseName)).thenReturn(mongoDatabase);
     when(aggregateIterable.allowDiskUse(anyBoolean())).thenReturn(aggregateIterable);
@@ -228,7 +228,7 @@ public class MongoUtilTest {
     when(cursor.next()).thenReturn(schemaDiscoveryResponses.get(0), schemaDiscoveryResponses.get(1));
     when(aggregateIterable.cursor()).thenReturn(cursor);
     when(mongoCollection.aggregate(any())).thenReturn(aggregateIterable);
-    when(mongoDatabase.getCollection(any()).withReadConcern(ReadConcern.LOCAL)).thenReturn(mongoCollection);
+    when(mongoDatabase.getCollection(any())).thenReturn(mongoCollection);
     when(mongoDatabase.runCommand(any())).thenReturn(authorizedCollectionsResponse);
     when(mongoClient.getDatabase(databaseName)).thenReturn(mongoDatabase);
     when(aggregateIterable.allowDiskUse(anyBoolean())).thenReturn(aggregateIterable);
@@ -341,7 +341,7 @@ public class MongoUtilTest {
     when(cursor.next()).thenReturn(new Document(collStatsList.get(0)));
     when(aggregateIterable.cursor()).thenReturn(cursor);
     when(mongoCollection.aggregate(any())).thenReturn(aggregateIterable);
-    when(mongoDatabase.getCollection(collectionName).withReadConcern(ReadConcern.LOCAL)).thenReturn(mongoCollection);
+    when(mongoDatabase.getCollection(collectionName)).thenReturn(mongoCollection);
     when(mongoClient.getDatabase(databaseName)).thenReturn(mongoDatabase);
     when(aggregateIterable.allowDiskUse(anyBoolean())).thenReturn(aggregateIterable);
 
@@ -368,7 +368,7 @@ public class MongoUtilTest {
     when(cursor.hasNext()).thenReturn(false);
     when(aggregateIterable.cursor()).thenReturn(cursor);
     when(mongoCollection.aggregate(any())).thenReturn(aggregateIterable);
-    when(mongoDatabase.getCollection(collectionName).withReadConcern(ReadConcern.LOCAL)).thenReturn(mongoCollection);
+    when(mongoDatabase.getCollection(collectionName)).thenReturn(mongoCollection);
     when(mongoClient.getDatabase(databaseName)).thenReturn(mongoDatabase);
 
     final Optional<MongoUtil.CollectionStatistics> statistics = MongoUtil.getCollectionStatistics(mongoClient, configuredAirbyteStream);
@@ -394,7 +394,7 @@ public class MongoUtilTest {
     when(cursor.next()).thenReturn(new Document(collStatsList.get(0)));
     when(aggregateIterable.cursor()).thenReturn(cursor);
     when(mongoCollection.aggregate(any())).thenReturn(aggregateIterable);
-    when(mongoDatabase.getCollection(collectionName).withReadConcern(ReadConcern.LOCAL)).thenReturn(mongoCollection);
+    when(mongoDatabase.getCollection(collectionName)).thenReturn(mongoCollection);
     when(mongoClient.getDatabase(databaseName)).thenReturn(mongoDatabase);
 
     final Optional<MongoUtil.CollectionStatistics> statistics = MongoUtil.getCollectionStatistics(mongoClient, configuredAirbyteStream);

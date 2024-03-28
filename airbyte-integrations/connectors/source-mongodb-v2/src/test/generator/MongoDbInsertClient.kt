@@ -122,7 +122,7 @@ object MongoDbInsertClient {
                 }
                 mongoClient
                     .getDatabase(databaseName)
-                    .getCollection(collectionName).withReadConcern(ReadConcern.LOCAL)
+                    .getCollection(collectionName)
                     .insertMany(documents)
                 documents.clear()
             }

@@ -15,7 +15,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.mongodb.MongoCredential;
 import com.mongodb.MongoSecurityException;
-import com.mongodb.ReadConcern;
+
 import com.mongodb.client.*;
 import com.mongodb.connection.ClusterDescription;
 import com.mongodb.connection.ClusterType;
@@ -190,7 +190,7 @@ class MongoDbSourceTest {
     when(cursor.next()).thenReturn(schemaDiscoveryResponses.get(0), schemaDiscoveryResponses.get(1));
     when(aggregateIterable.cursor()).thenReturn(cursor);
     when(mongoCollection.aggregate(any())).thenReturn(aggregateIterable);
-    when(mongoDatabase.getCollection(any()).withReadConcern(ReadConcern.LOCAL)).thenReturn(mongoCollection);
+    when(mongoDatabase.getCollection(any())).thenReturn(mongoCollection);
     when(mongoDatabase.runCommand(any())).thenReturn(authorizedCollectionsResponse);
     when(mongoClient.getDatabase(any())).thenReturn(mongoDatabase);
     when(aggregateIterable.allowDiskUse(anyBoolean())).thenReturn(aggregateIterable);
@@ -247,7 +247,7 @@ class MongoDbSourceTest {
     when(cursor.next()).thenReturn(schemaDiscoveryResponses.get(0), schemaDiscoveryResponses.get(1));
     when(aggregateIterable.cursor()).thenReturn(cursor);
     when(mongoCollection.aggregate(any())).thenReturn(aggregateIterable);
-    when(mongoDatabase.getCollection(any()).withReadConcern(ReadConcern.LOCAL)).thenReturn(mongoCollection);
+    when(mongoDatabase.getCollection(any())).thenReturn(mongoCollection);
     when(mongoDatabase.runCommand(any())).thenReturn(authorizedCollectionsResponse);
     when(mongoClient.getDatabase(any())).thenReturn(mongoDatabase);
 

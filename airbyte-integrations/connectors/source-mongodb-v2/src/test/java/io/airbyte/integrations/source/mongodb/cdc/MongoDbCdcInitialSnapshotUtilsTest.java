@@ -11,7 +11,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.mongodb.ReadConcern;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
@@ -67,7 +66,7 @@ class MongoDbCdcInitialSnapshotUtilsTest {
     when(cursor.next()).thenReturn(new Document(collStatsList.get(0)));
     when(aggregateIterable.cursor()).thenReturn(cursor);
     when(mongoCollection.aggregate(any())).thenReturn(aggregateIterable);
-    when(mongoDatabase.getCollection(NEW_NAME).withReadConcern(ReadConcern.LOCAL)).thenReturn(mongoCollection);
+    when(mongoDatabase.getCollection(NEW_NAME)).thenReturn(mongoCollection);
     when(mongoClient.getDatabase(NAMESPACE)).thenReturn(mongoDatabase);
 
     final List<ConfiguredAirbyteStream> initialSnapshotStreams =
