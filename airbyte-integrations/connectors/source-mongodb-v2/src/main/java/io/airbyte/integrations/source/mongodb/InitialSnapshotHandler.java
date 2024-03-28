@@ -4,6 +4,7 @@
 
 package io.airbyte.integrations.source.mongodb;
 
+import com.mongodb.ReadConcern;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.*;
@@ -50,7 +51,7 @@ public class InitialSnapshotHandler {
         .stream()
         .map(airbyteStream -> {
           final var collectionName = airbyteStream.getStream().getName();
-          final var collection = database.getCollection(collectionName);
+          final var collection = database.getCollection(collectionName).withReadConcern(ReadConcern.LOCAL);
           final var fields = Projections.fields(Projections.include(CatalogHelpers.getTopLevelFieldNames(airbyteStream).stream().toList()));
 
           final var idTypes = aggregateIdField(collection);
