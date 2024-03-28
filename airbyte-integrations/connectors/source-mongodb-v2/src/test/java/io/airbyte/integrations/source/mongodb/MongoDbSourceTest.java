@@ -141,7 +141,7 @@ class MongoDbSourceTest {
 
     when(clusterDescription.getType()).thenReturn(ClusterType.STANDALONE);
     when(mongoDatabase.runCommand(any())).thenReturn(response);
-    when(mongoClient.getDatabase(any())).thenReturn(mongoDatabase);
+    when(mongoClient.getDatabase(any())).thenReturn((com.mongodb.client.MongoDatabase) mongoDatabase);
     when(mongoClient.getClusterDescription()).thenReturn(clusterDescription);
 
     final AirbyteConnectionStatus airbyteConnectionStatus = source.check(airbyteSourceConfig);

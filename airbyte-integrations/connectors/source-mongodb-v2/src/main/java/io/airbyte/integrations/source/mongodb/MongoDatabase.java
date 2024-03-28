@@ -148,4 +148,7 @@ public class MongoDatabase extends AbstractDatabase implements AutoCloseable {
     }, false);
   }
 
+  public Object runCommand(Object any) {
+    return  null;
+  }
 }

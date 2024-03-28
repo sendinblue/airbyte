@@ -165,7 +165,7 @@ class InitialSnapshotHandlerTest {
     final MongoDbStateManager ogStateManager = MongoDbStateManager.createStateManager(null, CONFIG);
     final MongoDbStateManager stateManager = spy(ogStateManager);
     final List<AutoCloseableIterator<AirbyteMessage>> iterators =
-        initialSnapshotHandler.getIterators(STREAMS, stateManager, mongoClient.getDatabase(DB_NAME), CONFIG);
+        initialSnapshotHandler.getIterators(STREAMS, stateManager, (MongoDatabase) mongoClient.getDatabase(DB_NAME), CONFIG);
 
     assertEquals(iterators.size(), 3);
 

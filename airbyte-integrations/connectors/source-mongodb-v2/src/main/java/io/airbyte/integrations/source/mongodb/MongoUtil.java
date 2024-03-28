@@ -17,7 +17,6 @@ import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
-import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.MongoIterable;
 import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.Projections;
@@ -177,7 +176,7 @@ public class MongoUtil {
   public static Optional<CollectionStatistics> getCollectionStatistics(final MongoClient mongoClient, final ConfiguredAirbyteStream stream) {
     try {
       final Map<String, Object> collStats = Map.of(MongoConstants.STORAGE_STATS_KEY, Map.of(), MongoConstants.COUNT_KEY, Map.of());
-      final MongoDatabase mongoDatabase = mongoClient.getDatabase(stream.getStream().getNamespace());
+      final MongoDatabase mongoDatabase = (MongoDatabase) mongoClient.getDatabase(stream.getStream().getNamespace());
       final MongoCollection<Document> collection = mongoDatabase.getCollection(stream.getStream().getName());
       final AggregateIterable<Document> output = collection.aggregate(List.of(new Document("$collStats", collStats)));
 
