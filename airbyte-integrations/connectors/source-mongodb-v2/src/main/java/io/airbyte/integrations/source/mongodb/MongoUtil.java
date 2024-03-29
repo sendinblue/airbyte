@@ -177,8 +177,8 @@ public class MongoUtil {
   public static Optional<CollectionStatistics> getCollectionStatistics(final MongoClient mongoClient, final ConfiguredAirbyteStream stream) {
     try {
       final Map<String, Object> collStats = Map.of(MongoConstants.STORAGE_STATS_KEY, Map.of(), MongoConstants.COUNT_KEY, Map.of());
-      final MongoDatabase mongoDatabase = mongoClient.getDatabase(stream.getStream().getNamespace());
-      final MongoCollection<Document> collection = mongoDatabase.getCollection(stream.getStream().getName());
+      // final MongoDatabase mongoDatabase = mongoClient.getDatabase(stream.getStream().getNamespace());
+      final MongoCollection<Document> collection = mongoClient.getDatabase(stream.getStream().getNamespace()).getCollection(stream.getStream().getName());
       final AggregateIterable<Document> output = collection.aggregate(List.of(new Document("$collStats", collStats)));
 
       try (final MongoCursor<Document> cursor = output.allowDiskUse(true).cursor()) {

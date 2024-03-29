@@ -34,7 +34,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Tag Docker image
-        run: docker tag airbyte/source-mongodb-v2:dev sibengineering/airbyte-source-mongodb:1.3.0.10
+        run: docker tag airbyte/source-mongodb-v2:dev sibengineering/airbyte-source-mongodb:1.3.0.11
 
       - name: Push Docker image to Docker Hub
-        run: docker push sibengineering/airbyte-source-mongodb:1.3.0.10
+        run: docker push sibengineering/airbyte-source-mongodb:1.3.0.11

@@ -168,9 +168,9 @@ public class MongoDbCdcInitializer {
 
   private void logOplogInfo(final MongoClient mongoClient) {
     try {
-      final MongoDatabase localDatabase = mongoClient.getDatabase("local");
+      // final MongoDatabase localDatabase = mongoClient.getDatabase("local");
       final Document command = new Document("collStats", "oplog.rs");
-      final Document result = localDatabase.runCommand(command);
+      final Document result = mongoClient.getDatabase("local").runCommand(command);
       if (result != null) {
         LOGGER.info("Max oplog size is {} bytes", result.getLong("maxSize"));
         LOGGER.info("Free space in oplog is {} bytes", result.getLong("freeStorageSize"));
