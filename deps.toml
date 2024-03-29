@@ -85,7 +85,7 @@ log4j-web = { module = "org.apache.logging.log4j:log4j-web", version.ref = "log4
 lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
 micrometer-statsd = { module = "io.micrometer:micrometer-registry-statsd", version = "1.9.3" }
 mockk = { module = "io.mockk:mockk", version = "1.13.3" }
-mongo-driver-sync = { module = "org.mongodb:mongodb-driver-sync", version = "3.12.10" }
+mongo-driver-sync = { module = "org.mongodb:mongodb-driver-sync", version = "4.10.2" }
 otel-bom = { module = "io.opentelemetry:opentelemetry-bom", version = "1.14.0" }
 otel-sdk = { module = "io.opentelemetry:opentelemetry-sdk-metrics", version = "1.14.0" }
 otel-sdk-testing = { module = "io.opentelemetry:opentelemetry-sdk-metrics-testing", version = "1.13.0-alpha" }

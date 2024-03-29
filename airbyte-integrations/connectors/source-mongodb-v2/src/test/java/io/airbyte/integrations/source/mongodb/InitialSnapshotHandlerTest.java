@@ -18,7 +18,6 @@ import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableSet;
-
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
@@ -165,7 +164,7 @@ class InitialSnapshotHandlerTest {
     final MongoDbStateManager ogStateManager = MongoDbStateManager.createStateManager(null, CONFIG);
     final MongoDbStateManager stateManager = spy(ogStateManager);
     final List<AutoCloseableIterator<AirbyteMessage>> iterators =
-        initialSnapshotHandler.getIterators(STREAMS, stateManager, (MongoDatabase) mongoClient.getDatabase(DB_NAME), CONFIG);
+        initialSnapshotHandler.getIterators(STREAMS, stateManager, mongoClient.getDatabase(DB_NAME), CONFIG);
 
     assertEquals(iterators.size(), 3);
 

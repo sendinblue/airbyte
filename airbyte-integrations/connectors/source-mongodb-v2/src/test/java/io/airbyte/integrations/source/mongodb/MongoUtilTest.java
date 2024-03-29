@@ -25,7 +25,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.mongodb.*;
+import com.mongodb.MongoCommandException;
+import com.mongodb.MongoCredential;
+import com.mongodb.MongoException;
+import com.mongodb.MongoSecurityException;
+import com.mongodb.ServerAddress;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
