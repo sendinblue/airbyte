@@ -4,7 +4,7 @@
 
 from abc import ABC
 from datetime import datetime
-from typing import Any, Generator, Iterable, List, Mapping, MutableMapping, Optional, Tuple
+from typing import Any, Mapping, Optional, Tuple
 
 import pymongo
 import ssl
@@ -12,16 +12,12 @@ import ssl
 from airbyte_cdk.sources.source import Source
 from airbyte_cdk.models import (
     AirbyteCatalog,
-    AirbyteConnectionStatus,
-    AirbyteMessage,
     AirbyteRecordMessage,
+    AirbyteConnectionStatus,
     AirbyteStream,
-    ConfiguredAirbyteCatalog,
     Status,
-    Type,
     SyncMode
 )
-from pymongo import MongoClient
 
 class SourceMongodbPython(Source):
     
@@ -45,48 +41,26 @@ class SourceMongodbPython(Source):
         :param config: A mapping containing the user-provided configuration as specified by the source's spec.yaml
         :return: A tuple of (bool, optional error message). True indicates a successful connection check.
         """
-            # Attempt connection using a DNS string
-        if 'connection_uri' in config:
-            parsed_uri = pymongo.uri_parser.parse_uri(config['connection_uri'])
-            additional_config = {
-                "username": parsed_uri['username'],
-                "password": parsed_uri['password'],
-                "authSource": parsed_uri['options']['authsource'],
-                "user": parsed_uri['username'],
-                "database": parsed_uri.get('database', 'admin')
-            }
+        # Attempt connection using individual parameters
+        verify_mode = config.get('verify_mode', 'true') == 'true'
+        use_ssl = config.get('ssl', 'false') == 'true'
 
-            if additional_config["user"] is None:
-                logger.info("Set default user as admin")
-                additional_config["user"] = "admin"
+        connection_params = {
+            "host": config['host'],
+            "port": int(config['port']),
+            "username": config.get('user', None),
+            "password": config.get('password', None),
+            "authSource": config['database'],
+            "ssl": use_ssl,
+            "replicaset": config.get('replica_set', None),
+            "readPreference": 'secondaryPreferred'
+        }
 
-            config.update(additional_config)
-            client = pymongo.MongoClient(config['connection_uri'])
-            # Test the connection
-            client.admin.command('ping')
-            return client
+        if not verify_mode and use_ssl:
+            connection_params["ssl_cert_reqs"] = ssl.CERT_NONE
 
-        else:
-            # Attempt connection using individual parameters
-            verify_mode = config.get('verify_mode', 'true') == 'true'
-            use_ssl = config.get('ssl', 'false') == 'true'
-
-            connection_params = {
-                "host": config['host'],
-                "port": int(config['port']),
-                "username": config.get('user', None),
-                "password": config.get('password', None),
-                "authSource": config['database'],
-                "ssl": use_ssl,
-                "replicaset": config.get('replica_set', None),
-                "readPreference": 'secondaryPreferred'
-            }
-
-            if not verify_mode and use_ssl:
-                connection_params["ssl_cert_reqs"] = ssl.CERT_NONE
-
-            client = pymongo.MongoClient(**connection_params)
-            client.admin.command('ping')
+        client = pymongo.MongoClient(**connection_params)
+        client.admin.command('ping')
 
         return client
 
@@ -112,71 +86,45 @@ class SourceMongodbPython(Source):
         return schema
 
 
-    def read(self, logger, config, catalog, state=None):
+    def read(self, logger, config, catalog, state):
         client = self.get_client(logger, config)
         db = client[config['database']]
 
         for configured_stream in catalog.streams:
             stream = configured_stream.stream
-            collection_name = stream.name  # Accès correct au nom du stream
+            collection_name = stream.name 
             collection = db[collection_name]
 
             sync_mode = configured_stream.sync_mode
             query = {}
-            if sync_mode == SyncMode.incremental and state and state.get(collection_name):
-                state_value = state[collection_name]
-                query = {"updated_at": {"$gt": state_value}}
+
+            if sync_mode == SyncMode.incremental:
+                state_value = state.get(collection_name)
+                if state_value is not None:
+                    query["$and"] = [
+                        {"updated_at": {"$gt": state_value}}
+                    ]
+                if config.get('start_date'):
+                    start_date_query = {"updated_at": {"$gt": config['start_date']}}
+                    if "$and" in query:
+                        query["$and"].append(start_date_query)
+                    else:
+                        query["$and"] = [start_date_query]           
             
             cursor = collection.find(query)
             for doc in cursor:
-                print("----------")
-                print(int(datetime.now().timestamp()) * 1000)
-                print("----------")
-                # record= AirbyteRecordMessage(stream=collection_name, data={"f1": "v1", "f2": "v2"}, emitted_at=111, type='e')
+                doc['_id'] = str(doc['_id'])
                 record = AirbyteRecordMessage(
                     stream=collection_name,
                     data=doc,
                     emitted_at=int(datetime.now().timestamp()) * 1000,
-                    type="3"
+                    type="record"
                 )
                 yield record
 
-                # if sync_mode == SyncMode.incremental:
-                #     updated_at = doc.get("updated_at")
-                #     if updated_at:
-                #         state[collection_name] = updated_at
+                if sync_mode == SyncMode.incremental:
+                    updated_at = doc.get("updated_at")
+                    if updated_at:
+                        state[collection_name] = updated_at
 
         client.close()
-
-
-#   def read(self, logger, config, catalog, state=None):
-#         client = self.get_client(logger, config)
-#         db = client[config['database']]
-
-#         for configured_stream in catalog.streams:
-#             stream = configured_stream.stream
-#             collection_name = stream.name  # Accès correct au nom du stream
-#             collection = db[collection_name]
-
-#             # La logique ici est la même que l'exemple précédent
-#             sync_mode = configured_stream.sync_mode
-#             query = {}
-#             if sync_mode == SyncMode.incremental and state and state.get(collection_name):
-#                 state_value = state[collection_name]
-#                 query = {"updated_at": {"$gt": state_value}}
-            
-#             cursor = collection.find(query)
-#             for doc in cursor:
-#                 record = AirbyteRecordMessage(
-#                     stream=collection_name,
-#                     data=doc,
-#                     emitted_at=int(datetime.now().timestamp()) * 1000
-#                 )
-#                 yield record
-
-#                 if sync_mode == SyncMode.incremental:
-#                     updated_at = doc.get("updated_at")
-#                     if updated_at:
-#                         state[collection_name] = updated_at
-
-#         client.close()
