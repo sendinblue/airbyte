@@ -17,7 +17,7 @@ packages = [ { include = "source_mongodb_python" }, {include = "main.py" } ]
 [tool.poetry.dependencies]
 python = "^3.9,<3.12"
 airbyte-cdk = "^0"
-pymongo=3.8.0
+pymongo =">=4.4.0" 
 
 [tool.poetry.scripts]
 source-mongodb-python = "source_mongodb_python.run:run"

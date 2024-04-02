@@ -4,8 +4,26 @@ connectionSpecification:
   title: Mongodb Python Spec
   type: object
   required:
-    - connection_uri
+    - host
   properties:
     connection_uri:
+      type: string
+      description: describe me
+    host:
+      type: string
+      description: describe me
+    port:
+      type: string
+      description: describe me
+    username:
+      type: string
+      description: describe me
+    password:
+      type: string
+      description: describe me
+    database:
+      type: string
+      description: describe me
+    replica_set:
       type: string
       description: describe me
