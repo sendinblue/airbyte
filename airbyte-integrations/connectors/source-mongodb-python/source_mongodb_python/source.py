@@ -8,6 +8,7 @@ from typing import Any, Dict, Mapping, Optional, Tuple
 
 import pymongo
 import ssl
+from bson.timestamp import Timestamp
 
 from airbyte_cdk.sources.source import Source
 from airbyte_cdk.models import (
@@ -115,61 +116,56 @@ class SourceMongodbPython(Source):
     def read(self, logger, config, catalog, state):
         client = self.get_client(logger, config)
         db = client[config['database']]
-
-
-        # transformed_state = self._transform_state(state)
-
+        oplog = client['local']['oplog.rs']
+        
         for configured_stream in catalog.streams:
+            sync_mode = configured_stream.sync_mode
             stream = configured_stream.stream
             collection_name = stream.name
-            last_run = None
-            for state__message in state:
-                if state__message.stream.stream_descriptor.name == collection_name:
-                    last_run = state__message.stream.stream_state.last_run
-           
-            logger.info("SSSTATE")
-            logger.info(last_run)
-            logger.info("SSSTATE")
             collection = db[collection_name]
-
-            sync_mode = configured_stream.sync_mode
             query = {}
+            now = datetime.now()
 
-            # Find the corresponding state for the current collection, if it exists
             if sync_mode == SyncMode.incremental:
-                state_value = last_run
-                if state_value is not None:
-                    query["$and"] = [
-                        {"updated_at": {"$gt": state_value}}
-                    ]
-                if config.get('start_date'):
-                    start_date_query = {"updated_at": {"$gt": config['start_date']}}
-                    if "$and" in query:
-                        query["$and"].append(start_date_query)
-                    else:
-                        query["$and"] = [start_date_query]
-
+                last_run = None
+                for state_message in state:
+                    if state_message.stream.stream_descriptor.name == collection_name:
+                        last_run = Timestamp(int(datetime.strptime(state_message.stream.stream_state.last_run, "%Y-%m-%dT%H:%M:%S").timestamp()), 1)
+                start_date = Timestamp(int(datetime.strptime(config['start_date'], "%Y-%m-%dT%H:%M:%S").timestamp()), 1)
+               
+                filtre = {
+                    'ts': {'$gt': max(last_run, start_date) if last_run else start_date},
+                    'op': {'$in': ['i', 'u']},
+                    'ns': f'{config["database"]}.{collection_name}'
+                }
+                pipeline = [
+                    {"$match": filtre},
+                    {"$group": {"_id": "$o._id"}},
+                ]
+                distinct_ids_cursor = oplog.aggregate(pipeline)
+                distinct_ids_list = [str(id_obj["_id"]) for id_obj in distinct_ids_cursor if id_obj["_id"] is not None]
+                query = {'_id': {'$in': distinct_ids_list}}
+                print(distinct_ids_list)
 
             cursor = collection.find(query)
-            run_datetime = datetime.now()
 
             for doc in cursor:
                 doc['_id'] = str(doc['_id'])
                 record = AirbyteRecordMessage(
                     stream=collection_name,
                     data=doc,
-                    emitted_at=int(run_datetime.timestamp()) * 1000,
+                    emitted_at=int(now.timestamp()) * 1000,
                 )
                 yield AirbyteMessage(type=Type.RECORD, record=record)
 
             if sync_mode == SyncMode.incremental:
                 stream_state = AirbyteStateMessage(
-                type=AirbyteStateType.STREAM,
-                stream=AirbyteStreamState(
-                    stream_descriptor=StreamDescriptor(name=collection_name),
-                    stream_state=AirbyteStateBlob.parse_obj({"last_run": run_datetime}),
-                ),
+                    type=AirbyteStateType.STREAM,
+                    stream=AirbyteStreamState(
+                        stream_descriptor=StreamDescriptor(name=collection_name),
+                        stream_state=AirbyteStateBlob.parse_obj({"last_run": now.strftime("%Y-%m-%dT%H:%M:%S")}),
+                    ),
                 )
                 yield AirbyteMessage(type=Type.STATE, state=stream_state)
-        client.close()
 
+        client.close()
