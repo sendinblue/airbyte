@@ -4,7 +4,7 @@
 
 from abc import ABC
 from datetime import datetime
-from typing import Any, Mapping, Optional, Tuple
+from typing import Any, Dict, Mapping, Optional, Tuple
 
 import pymongo
 import ssl
@@ -16,7 +16,14 @@ from airbyte_cdk.models import (
     AirbyteConnectionStatus,
     AirbyteStream,
     Status,
-    SyncMode
+    SyncMode,
+    Type,
+    AirbyteMessage,
+    AirbyteStateMessage,
+    StreamDescriptor,
+    AirbyteStateBlob,
+    AirbyteStreamState,
+    AirbyteStateType
 )
 
 class SourceMongodbPython(Source):
@@ -79,27 +86,58 @@ class SourceMongodbPython(Source):
         return AirbyteCatalog(streams=streams)
 
     def _get_json_schema_for_collection(self, collection):
-        schema = {
-        'properties': {
-            '_id': {'type': 'string'}
-        }}
+        schema = {'properties': {}}
+
+        # Iterate over the documents in the collection to gather schema information
+        cursor = collection.find({})
+        for doc in cursor:
+            for key, value in doc.items():
+                # Always set the type of each column as string
+                schema['properties'][key] = {'type': 'string'}
+
         return schema
 
+    def _transform_state(self,state):
+        # New dictionary to store the transformed data
+        transformed_state = {}
+
+        # Loop through each item in the original list
+        for item in state:
+            # Extract the collection name and run datetime
+            collection_name = item["streamDescriptor"]["name"]
+            run_datetime = item["streamState"]["last_run"]
+            
+            # Add to the new dictionary
+            transformed_state[collection_name] = run_datetime
+        
+        return transformed_state
 
     def read(self, logger, config, catalog, state):
         client = self.get_client(logger, config)
         db = client[config['database']]
 
+
+        # transformed_state = self._transform_state(state)
+
         for configured_stream in catalog.streams:
             stream = configured_stream.stream
-            collection_name = stream.name 
+            collection_name = stream.name
+            last_run = None
+            for state__message in state:
+                if state__message.stream.stream_descriptor.name == collection_name:
+                    last_run = state__message.stream.stream_state.last_run
+           
+            logger.info("SSSTATE")
+            logger.info(last_run)
+            logger.info("SSSTATE")
             collection = db[collection_name]
 
             sync_mode = configured_stream.sync_mode
             query = {}
 
+            # Find the corresponding state for the current collection, if it exists
             if sync_mode == SyncMode.incremental:
-                state_value = state.get(collection_name)
+                state_value = last_run
                 if state_value is not None:
                     query["$and"] = [
                         {"updated_at": {"$gt": state_value}}
@@ -109,22 +147,29 @@ class SourceMongodbPython(Source):
                     if "$and" in query:
                         query["$and"].append(start_date_query)
                     else:
-                        query["$and"] = [start_date_query]           
-            
+                        query["$and"] = [start_date_query]
+
+
             cursor = collection.find(query)
+            run_datetime = datetime.now()
+
             for doc in cursor:
                 doc['_id'] = str(doc['_id'])
                 record = AirbyteRecordMessage(
                     stream=collection_name,
                     data=doc,
-                    emitted_at=int(datetime.now().timestamp()) * 1000,
-                    type="record"
+                    emitted_at=int(run_datetime.timestamp()) * 1000,
                 )
-                yield record
+                yield AirbyteMessage(type=Type.RECORD, record=record)
 
-                if sync_mode == SyncMode.incremental:
-                    updated_at = doc.get("updated_at")
-                    if updated_at:
-                        state[collection_name] = updated_at
-
+            if sync_mode == SyncMode.incremental:
+                stream_state = AirbyteStateMessage(
+                type=AirbyteStateType.STREAM,
+                stream=AirbyteStreamState(
+                    stream_descriptor=StreamDescriptor(name=collection_name),
+                    stream_state=AirbyteStateBlob.parse_obj({"last_run": run_datetime}),
+                ),
+                )
+                yield AirbyteMessage(type=Type.STATE, state=stream_state)
         client.close()
+

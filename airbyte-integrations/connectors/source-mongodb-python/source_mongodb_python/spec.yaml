@@ -5,10 +5,9 @@ connectionSpecification:
   type: object
   required:
     - host
+    - port
+    - database
   properties:
-    connection_uri:
-      type: string
-      description: describe me
     host:
       type: string
       description: describe me
@@ -28,11 +27,12 @@ connectionSpecification:
       type: string
       description: describe me
     ssl:
-      type: string
+      type: boolean
       description: describe me
     start_date:
       type: string
-      default: "2000-06-23T01:30:00.000Z"
+      pattern: ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$
+      default: "2022-10-01T00:00:00Z"
       description: Specify Date and time from which you want to fetch data
       examples:
         - "2000-10-31T01:30:00.000Z"       
