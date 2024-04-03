@@ -28,15 +28,18 @@ from airbyte_cdk.models import (
     AirbyteStateType
 )
 
-
-
-
 class JsonEncoder():
     def encode(self, o):
-        if '_id' in o:
-            o['_id'] = str(o['_id'])
-        return o
-
+        def handle_object(obj):
+            if isinstance(obj, dict):
+                for key, value in obj.items():
+                    obj[key] = handle_object(value)
+            elif isinstance(obj, list):
+                obj = [handle_object(item) for item in obj]
+            elif isinstance(obj, ObjectId):
+                return str(obj)
+            return obj
+        return handle_object(o)
 
 class SourceMongodbPython(Source):
     
