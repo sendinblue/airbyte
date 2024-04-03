@@ -9,6 +9,7 @@ from typing import Any, Dict, Mapping, Optional, Tuple
 import pymongo
 import ssl
 from bson.timestamp import Timestamp
+from bson import ObjectId
 
 from airbyte_cdk.sources.source import Source
 from airbyte_cdk.models import (
@@ -26,6 +27,16 @@ from airbyte_cdk.models import (
     AirbyteStreamState,
     AirbyteStateType
 )
+
+
+
+
+class JsonEncoder():
+    def encode(self, o):
+        if '_id' in o:
+            o['_id'] = str(o['_id'])
+        return o
+
 
 class SourceMongodbPython(Source):
     
@@ -55,14 +66,15 @@ class SourceMongodbPython(Source):
 
         connection_params = {
             "host": config['host'],
-            "port": int(config['port']),
             "username": config.get('user', None),
             "password": config.get('password', None),
-            "authSource": config['database'],
+            "authSource": config['authsource'],
             "ssl": use_ssl,
             "replicaset": config.get('replica_set', None),
             "readPreference": 'secondaryPreferred'
         }
+        if config.get('port', None):
+            connection_params["port"]= int(config["port"])
 
         if not verify_mode and use_ssl:
             connection_params["ssl_cert_reqs"] = ssl.CERT_NONE
@@ -73,7 +85,6 @@ class SourceMongodbPython(Source):
         return client
 
     def discover(self, logger, config):
-
         client = self.get_client(logger, config)
         db = client[config['database']]
         streams = []
@@ -88,31 +99,14 @@ class SourceMongodbPython(Source):
 
     def _get_json_schema_for_collection(self, collection):
         schema = {'properties': {}}
-
-        # Iterate over the documents in the collection to gather schema information
-        cursor = collection.find({})
+        cursor = collection.find({}).limit(10)  # Adjust the limit as necessary
         for doc in cursor:
-            for key, value in doc.items():
-                # Always set the type of each column as string
+            for key in doc.keys():
+                # Set the type of each column as string without inspecting the value
                 schema['properties'][key] = {'type': 'string'}
-
+                schema['properties']["_cdc_lastrun"] = {'type': 'string'}
         return schema
-
-    def _transform_state(self,state):
-        # New dictionary to store the transformed data
-        transformed_state = {}
-
-        # Loop through each item in the original list
-        for item in state:
-            # Extract the collection name and run datetime
-            collection_name = item["streamDescriptor"]["name"]
-            run_datetime = item["streamState"]["last_run"]
-            
-            # Add to the new dictionary
-            transformed_state[collection_name] = run_datetime
-        
-        return transformed_state
-
+    
     def read(self, logger, config, catalog, state):
         client = self.get_client(logger, config)
         db = client[config['database']]
@@ -124,12 +118,11 @@ class SourceMongodbPython(Source):
             collection_name = stream.name
             collection = db[collection_name]
             query = {}
-            now = datetime.now()
 
             if sync_mode == SyncMode.incremental:
                 last_run = None
                 for state_message in state:
-                    if state_message.stream.stream_descriptor.name == collection_name:
+                    if state and state_message.stream.stream_descriptor.name == collection_name:
                         last_run = Timestamp(int(datetime.strptime(state_message.stream.stream_state.last_run, "%Y-%m-%dT%H:%M:%S").timestamp()), 1)
                 start_date = Timestamp(int(datetime.strptime(config['start_date'], "%Y-%m-%dT%H:%M:%S").timestamp()), 1)
                
@@ -143,14 +136,15 @@ class SourceMongodbPython(Source):
                     {"$group": {"_id": "$o._id"}},
                 ]
                 distinct_ids_cursor = oplog.aggregate(pipeline)
-                distinct_ids_list = [str(id_obj["_id"]) for id_obj in distinct_ids_cursor if id_obj["_id"] is not None]
+                distinct_ids_list = [id_obj["_id"] for id_obj in distinct_ids_cursor if id_obj["_id"] is not None and id_obj["_id"]!="660bd6de7bef645cba373b98"]
                 query = {'_id': {'$in': distinct_ids_list}}
-                print(distinct_ids_list)
 
             cursor = collection.find(query)
 
+            now = datetime.now()
             for doc in cursor:
-                doc['_id'] = str(doc['_id'])
+                doc['_cdc_lastrun'] = now.strftime("%Y-%m-%dT%H:%M:%S")
+                print(JsonEncoder().encode(doc))
                 record = AirbyteRecordMessage(
                     stream=collection_name,
                     data=doc,
@@ -169,3 +163,6 @@ class SourceMongodbPython(Source):
                 yield AirbyteMessage(type=Type.STATE, state=stream_state)
 
         client.close()
+
+
+

@@ -5,12 +5,11 @@ connectionSpecification:
   type: object
   required:
     - host
-    - port
     - database
   properties:
     host:
       type: string
-      description: describe me
+      description: Host
     port:
       type: string
       description: describe me
@@ -24,6 +23,9 @@ connectionSpecification:
       type: string
       description: describe me
     replica_set:
+      type: string
+      description: describe me
+    authsource:
       type: string
       description: describe me
     ssl:
