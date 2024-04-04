@@ -107,7 +107,7 @@ class SourceMongodbPython(Source):
             for key in doc.keys():
                 # Set the type of each column as string without inspecting the value
                 schema['properties'][key] = {'type': 'string'}
-                schema['properties']["_cdc_lastrun"] = {'type': 'string'}
+                schema['properties']["_collection_last_update"] = {'type': 'string'}
         return schema
     
     def read(self, logger, config, catalog, state):
@@ -123,35 +123,46 @@ class SourceMongodbPython(Source):
             query = {}
 
             if sync_mode == SyncMode.incremental:
-                last_run = None
+                state_collection_last_update = None
                 for state_message in state:
                     if state and state_message.stream.stream_descriptor.name == collection_name:
-                        last_run = Timestamp(int(datetime.strptime(state_message.stream.stream_state.last_run, "%Y-%m-%dT%H:%M:%S").timestamp()), 1)
+                        state_collection_last_update = Timestamp(int(state_message.stream.stream_state._collection_last_update), 1)
                 start_date = Timestamp(int(datetime.strptime(config['start_date'], "%Y-%m-%dT%H:%M:%S").timestamp()), 1)
-               
+
                 filtre = {
-                    'ts': {'$gt': max(last_run, start_date) if last_run else start_date},
+                    'ts': {'$gt': max(state_collection_last_update, start_date) if state_collection_last_update else start_date},
                     'op': {'$in': ['i', 'u']},
                     'ns': f'{config["database"]}.{collection_name}'
                 }
                 pipeline = [
                     {"$match": filtre},
-                    {"$group": {"_id": "$o._id"}},
+                    {"$sort": {"ts": -1}},
+                    {"$group": {
+                        "_id": "$o._id",
+                        "recentDate": {"$first": "$ts"} 
+                    }},
                 ]
                 distinct_ids_cursor = oplog.aggregate(pipeline)
-                distinct_ids_list = [id_obj["_id"] for id_obj in distinct_ids_cursor if id_obj["_id"] is not None and id_obj["_id"]!="660bd6de7bef645cba373b98"]
+                distinct_ids_list = []
+                recent_dates = []
+
+                for id_obj in distinct_ids_cursor:
+                    if id_obj["_id"] is not None:
+                        distinct_ids_list.append(id_obj["_id"])
+                        recent_dates.append(id_obj["recentDate"]) 
+
                 query = {'_id': {'$in': distinct_ids_list}}
-
+                _collection_last_update = max(recent_dates).time if recent_dates else None
+    
             cursor = collection.find(query)
-
-            now = datetime.now()
+            
             for doc in cursor:
-                doc['_cdc_lastrun'] = now.strftime("%Y-%m-%dT%H:%M:%S")
-                print(JsonEncoder().encode(doc))
+                doc['_collection_last_update'] = _collection_last_update
+                doc = JsonEncoder().encode(doc)
                 record = AirbyteRecordMessage(
                     stream=collection_name,
                     data=doc,
-                    emitted_at=int(now.timestamp()) * 1000,
+                    emitted_at=int(datetime.now().timestamp()) * 1000,
                 )
                 yield AirbyteMessage(type=Type.RECORD, record=record)
 
@@ -160,7 +171,7 @@ class SourceMongodbPython(Source):
                     type=AirbyteStateType.STREAM,
                     stream=AirbyteStreamState(
                         stream_descriptor=StreamDescriptor(name=collection_name),
-                        stream_state=AirbyteStateBlob.parse_obj({"last_run": now.strftime("%Y-%m-%dT%H:%M:%S")}),
+                        stream_state=AirbyteStateBlob.parse_obj({"_collection_last_update": _collection_last_update}),
                     ),
                 )
                 yield AirbyteMessage(type=Type.STATE, state=stream_state)
