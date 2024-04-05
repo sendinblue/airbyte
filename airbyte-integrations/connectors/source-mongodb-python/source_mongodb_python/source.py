@@ -114,7 +114,7 @@ class SourceMongodbPython(Source):
         client = self.get_client(logger, config)
         db = client[config['database']]
         oplog = client['local']['oplog.rs']
-        
+         
         for configured_stream in catalog.streams:
             sync_mode = configured_stream.sync_mode
             stream = configured_stream.stream
@@ -123,22 +123,22 @@ class SourceMongodbPython(Source):
             query = {}
 
             if sync_mode == SyncMode.incremental:
-                state_collection_last_update = None
                 for state_message in state:
                     if state and state_message.stream.stream_descriptor.name == collection_name:
                         state_collection_last_update = Timestamp(int(state_message.stream.stream_state._collection_last_update), 1)
-                start_date = Timestamp(int(datetime.strptime(config['start_date'], "%Y-%m-%dT%H:%M:%S").timestamp()), 1)
+
+                start_date = Timestamp(int(datetime.strptime(config['start_date'], "%Y-%m-%dT%H:%M:%S").timestamp()), 1) if config.get('start_date', None) else Timestamp(0,1) 
 
                 filtre = {
                     'ts': {'$gt': max(state_collection_last_update, start_date) if state_collection_last_update else start_date},
-                    'op': {'$in': ['i', 'u']},
+                    'op': {'$in': ['i', 'u', 'd']},
                     'ns': f'{config["database"]}.{collection_name}'
                 }
                 pipeline = [
                     {"$match": filtre},
-                    {"$sort": {"ts": -1}},
+                    {"$sort": {"ts": -1}},  
                     {"$group": {
-                        "_id": "$o._id",
+                        "_id": "$o2._id" if "$op" == 'u' else "$o._id", 
                         "recentDate": {"$first": "$ts"} 
                     }},
                 ]
@@ -161,12 +161,12 @@ class SourceMongodbPython(Source):
                 doc = JsonEncoder().encode(doc)
                 record = AirbyteRecordMessage(
                     stream=collection_name,
-                    data=doc,
+                    data=dict(),
                     emitted_at=int(datetime.now().timestamp()) * 1000,
                 )
                 yield AirbyteMessage(type=Type.RECORD, record=record)
 
-            if sync_mode == SyncMode.incremental:
+            if sync_mode == SyncMode.incremental and _collection_last_update:
                 stream_state = AirbyteStateMessage(
                     type=AirbyteStateType.STREAM,
                     stream=AirbyteStreamState(
