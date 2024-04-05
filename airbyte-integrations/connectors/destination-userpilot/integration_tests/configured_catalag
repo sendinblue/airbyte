@@ -1,0 +1,29 @@
+{
+    "streams": [
+        {
+            "stream": {
+                "name": "stream_identify",
+                "supported_sync_modes": [
+                    "incremental"
+                ],
+                "source_defined_cursor": false,
+                "json_schema": {
+                    "type": "object",
+                    "properties": {
+                        "user_id": {
+                            "type": "string"
+                        },
+                        "metadata": {
+                            "type": "object"
+                        },
+                        "inserted_at": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "sync_mode": "incremental",
+            "destination_sync_mode": "append"
+        }
+    ]
+}

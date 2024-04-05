@@ -1,0 +1,31 @@
+documentationUrl: https://docs.airbyte.com/integrations/destinations/userpilot
+supported_destination_sync_modes:
+  - append
+supportsIncremental: true
+connectionSpecification:
+  $schema: http://json-schema.org/draft-07/schema#
+  title: Destination Userpilot
+  type: object
+  required:
+    - api_key
+    - uobject
+  additionalProperties: false
+  properties:
+    api_key:
+      title: Userpilot API Token
+      description: Your Userpilot <a
+        href="https://run.userpilot.io/environment">API Token</a>
+      type: string
+      airbyte_secret: true
+    uobject:
+      title: Endpoint
+      type: object
+      oneOf:
+        - title: Identify user
+          additionalProperties: false
+          required:
+            - endpoint
+          properties:
+            endpoint:
+              type: string
+              const: "identify"
