@@ -123,8 +123,9 @@ class SourceMongodbPython(Source):
             query = {}
 
             if sync_mode == SyncMode.incremental:
+                state_collection_last_update = None
                 for state_message in state:
-                    if state and state_message.stream.stream_descriptor.name == collection_name:
+                    if state and state_message.stream.stream_descriptor.name == collection_name and state_message.stream.stream_state._collection_last_update:
                         state_collection_last_update = Timestamp(int(state_message.stream.stream_state._collection_last_update), 1)
 
                 start_date = Timestamp(int(datetime.strptime(config['start_date'], "%Y-%m-%dT%H:%M:%S").timestamp()), 1) if config.get('start_date', None) else Timestamp(0,1) 
@@ -138,8 +139,14 @@ class SourceMongodbPython(Source):
                     {"$match": filtre},
                     {"$sort": {"ts": -1}},  
                     {"$group": {
-                        "_id": "$o2._id" if "$op" == 'u' else "$o._id", 
-                        "recentDate": {"$first": "$ts"} 
+                        "_id": {
+                            "$cond": {
+                                "if": {"$eq": ["$op", "u"]},
+                                "then": "$o2._id",
+                                "else": "$o._id"
+                            }
+                        },
+                        "recentDate": {"$first": "$ts"}
                     }},
                 ]
                 distinct_ids_cursor = oplog.aggregate(pipeline)
@@ -150,6 +157,7 @@ class SourceMongodbPython(Source):
                     if id_obj["_id"] is not None:
                         distinct_ids_list.append(id_obj["_id"])
                         recent_dates.append(id_obj["recentDate"]) 
+                logger.info(f"Sync objects for {collection_name} :{len(distinct_ids_list)}")
 
                 query = {'_id': {'$in': distinct_ids_list}}
                 _collection_last_update = max(recent_dates).time if recent_dates else None
@@ -166,7 +174,7 @@ class SourceMongodbPython(Source):
                 )
                 yield AirbyteMessage(type=Type.RECORD, record=record)
 
-            if sync_mode == SyncMode.incremental and _collection_last_update:
+            if sync_mode == SyncMode.incremental:
                 stream_state = AirbyteStateMessage(
                     type=AirbyteStateType.STREAM,
                     stream=AirbyteStreamState(
