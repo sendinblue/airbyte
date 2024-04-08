@@ -146,18 +146,34 @@ class SourceMongodbPython(Source):
                                 "else": "$o._id"
                             }
                         },
-                        "recentDate": {"$first": "$ts"}
+                        "recentDate": {"$first": "$ts"},
+                        "operationType": {"$first": "$op"}  # Track the operation type
                     }},
                 ]
                 distinct_ids_cursor = oplog.aggregate(pipeline)
+                deletes_to_process = []
                 distinct_ids_list = []
                 recent_dates = []
 
                 for id_obj in distinct_ids_cursor:
-                    if id_obj["_id"] is not None:
-                        distinct_ids_list.append(id_obj["_id"])
-                        recent_dates.append(id_obj["recentDate"]) 
-                logger.info(f"Sync objects for {collection_name} :{len(distinct_ids_list)}")
+                    if id_obj["operationType"] == 'd':
+                        deletes_to_process.append({
+                            "_id": id_obj["_id"],
+                            "_sdc_deleted_at": datetime.utcfromtimestamp(id_obj["recentDate"].time).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+                        })
+                    else: 
+                        if id_obj["_id"] is not None:
+                            distinct_ids_list.append(id_obj["_id"])
+                            recent_dates.append(id_obj["recentDate"])
+                logger.info(f"Sync objects for {collection_name} :{len(distinct_ids_list)} + deletes: {len(deletes_to_process)}")
+
+                for delete_doc in deletes_to_process:
+                    record = AirbyteRecordMessage(
+                        stream=collection_name,
+                        data=JsonEncoder().encode(delete_doc),
+                        emitted_at=int(datetime.now().timestamp()) * 1000,
+                    )
+                    yield AirbyteMessage(type=Type.RECORD, record=record)
 
                 query = {'_id': {'$in': distinct_ids_list}}
                 _collection_last_update = max(recent_dates).time if recent_dates else None
@@ -169,7 +185,7 @@ class SourceMongodbPython(Source):
                 doc = JsonEncoder().encode(doc)
                 record = AirbyteRecordMessage(
                     stream=collection_name,
-                    data=dict(),
+                    data=doc,
                     emitted_at=int(datetime.now().timestamp()) * 1000,
                 )
                 yield AirbyteMessage(type=Type.RECORD, record=record)
