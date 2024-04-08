@@ -16,6 +16,7 @@ from logging import getLogger
 
 logger = getLogger("airbyte")
 
+
 class DestinationUserpilot(Destination):
     def write(
         self, config: Mapping[str, Any], configured_catalog: ConfiguredAirbyteCatalog, input_messages: Iterable[AirbyteMessage]
@@ -26,7 +27,7 @@ class DestinationUserpilot(Destination):
                 yield message
             elif message.type == Type.RECORD:
                 response = client.write(message.record.data)
-                if response.status_code != 200:
+                if response.status_code != 202:
                     logger.error({"record": message.record.data, "error": response.json()})
             else:
                 continue
