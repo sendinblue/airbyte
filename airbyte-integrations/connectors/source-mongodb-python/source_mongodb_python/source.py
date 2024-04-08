@@ -165,7 +165,7 @@ class SourceMongodbPython(Source):
                         if id_obj["_id"] is not None:
                             distinct_ids_list.append(id_obj["_id"])
                             recent_dates.append(id_obj["recentDate"])
-                logger.info(f"Sync objects for {collection_name} :{len(distinct_ids_list)} + deletes: {len(deletes_to_process)}")
+                logger.info(f"Sync objects for {collection_name} :{len(distinct_ids_list)} with deletes: {len(deletes_to_process)}")
 
                 for delete_doc in deletes_to_process:
                     record = AirbyteRecordMessage(
