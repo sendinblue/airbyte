@@ -108,6 +108,7 @@ class SourceMongodbPython(Source):
                 # Set the type of each column as string without inspecting the value
                 schema['properties'][key] = {'type': 'string'}
                 schema['properties']["_collection_last_update"] = {'type': 'string'}
+                schema['properties']["_sdc_deleted_at"] = {'type': 'string'}
         return schema
     
     def read(self, logger, config, catalog, state):
@@ -158,7 +159,7 @@ class SourceMongodbPython(Source):
                 for id_obj in distinct_ids_cursor:
                     if id_obj["operationType"] == 'd':
                         deletes_to_process.append({
-                            "_id": id_obj["_id"],
+                            "_id": str(id_obj["_id"]),
                             "_sdc_deleted_at": datetime.utcfromtimestamp(id_obj["recentDate"].time).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
                         })
                     else: 
@@ -170,7 +171,7 @@ class SourceMongodbPython(Source):
                 for delete_doc in deletes_to_process:
                     record = AirbyteRecordMessage(
                         stream=collection_name,
-                        data=JsonEncoder().encode(delete_doc),
+                        data=delete_doc,
                         emitted_at=int(datetime.now().timestamp()) * 1000,
                     )
                     yield AirbyteMessage(type=Type.RECORD, record=record)
