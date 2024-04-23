@@ -5,9 +5,7 @@
 
 from setuptools import find_packages, setup
 
-MAIN_REQUIREMENTS = [
-    "airbyte-cdk", "google-ads==23.0.0"
-]
+MAIN_REQUIREMENTS = ["airbyte-cdk", "google-ads==23.0.0"]
 
 TEST_REQUIREMENTS = ["pytest"]
 
