@@ -94,21 +94,23 @@ class SourceMongodbPython(Source):
         for collection_name in db.list_collection_names():
             stream = AirbyteStream(
                 name=collection_name,
-                json_schema=self._get_json_schema_for_collection(db[collection_name]),
+                json_schema=self._get_json_schema_for_collection(db[collection_name], config),
                 supported_sync_modes=["full_refresh", "incremental"],
             )
             streams.append(stream)
         return AirbyteCatalog(streams=streams)
 
-    def _get_json_schema_for_collection(self, collection):
-        schema = {'properties': {}}
-        cursor = collection.find({}).limit(10)  # Adjust the limit as necessary
-        for doc in cursor:
-            for key in doc.keys():
-                # Set the type of each column as string without inspecting the value
-                schema['properties'][key] = {'type': 'string'}
-                schema['properties']["_collection_last_update"] = {'type': 'string'}
-                schema['properties']["_sdc_deleted_at"] = {'type': 'string'}
+    def _get_json_schema_for_collection(self, collection, config):
+        if config.get("schemaless"):
+            schema = {"properties": {"data": {"type": "object"}}}
+        else:
+            schema = {'properties': {}}
+            cursor = collection.find({}).limit(10)  # Adjust the limit as necessary
+            for doc in cursor:
+                for key in doc.keys():
+                    schema['properties'][key] = {'type': 'string'}
+        schema['properties']["_collection_last_update"] = {'type': 'string'}
+        schema['properties']["_sdc_deleted_at"] = {'type': 'string'}
         return schema
     
     def read(self, logger, config, catalog, state):
@@ -121,6 +123,7 @@ class SourceMongodbPython(Source):
             stream = configured_stream.stream
             collection_name = stream.name
             collection = db[collection_name]
+            _collection_last_update= int(datetime.now().timestamp()) * 1000
             query = {}
 
             if sync_mode == SyncMode.incremental:
@@ -184,6 +187,8 @@ class SourceMongodbPython(Source):
             for doc in cursor:
                 doc['_collection_last_update'] = _collection_last_update
                 doc = JsonEncoder().encode(doc)
+                if config.get("schemaless"):
+                    doc = {'data': doc}
                 record = AirbyteRecordMessage(
                     stream=collection_name,
                     data=doc,
