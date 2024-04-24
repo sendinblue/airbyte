@@ -110,8 +110,8 @@ class SourceMongodbPython(Source):
             for doc in cursor:
                 for key in doc.keys():
                     schema["properties"][key] = {"type": "string"}
+            schema["properties"]["_sdc_deleted_at"] = {"type": "string"}
         schema["properties"]["_collection_last_update"] = {"type": "string"}
-        schema["properties"]["_sdc_deleted_at"] = {"type": "string"}
         return schema
 
     def read(self, logger, config, catalog, state):
@@ -124,7 +124,7 @@ class SourceMongodbPython(Source):
             stream = configured_stream.stream
             collection_name = stream.name
             collection = db[collection_name]
-            _collection_last_update = int(datetime.now().timestamp()) * 1000
+            _collection_last_update = int(datetime.now().timestamp())
             query = {}
 
             if sync_mode == SyncMode.incremental:
@@ -192,10 +192,10 @@ class SourceMongodbPython(Source):
             cursor = collection.find(query)
 
             for doc in cursor:
-                doc["_collection_last_update"] = _collection_last_update
                 doc = JsonEncoder().encode(doc)
                 if config.get("schemaless"):
                     doc = {"data": doc}
+                doc["_collection_last_update"] = _collection_last_update
                 record = AirbyteRecordMessage(
                     stream=collection_name,
                     data=doc,
