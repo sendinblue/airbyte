@@ -1,0 +1,23 @@
+{
+  "documentationUrl": "https://docs.airbyte.com/integrations/destinations/tapfiliate",
+  "supported_destination_sync_modes": [
+    "append"
+  ],
+  "supportsIncremental": true,
+  "connectionSpecification": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Destination Tapfiliate",
+    "type": "object",
+    "required": [
+      "x_api_token"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "x_api_token": {
+        "type": "string",
+        "description": "Api Token",
+        "airbyte_secret": true
+      }
+    }
+  }
+}

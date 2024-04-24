@@ -1,0 +1,1 @@
+{"type": "RECORD", "record": {"stream": "commissions", "emitted_at": 1664705198575, "data": { "customer_id": 7330111, "conversion_id": 25066111, "commission_type": "cpa351", "conversion_sub_amount": 0, "first_invoice_date": "2024-04-22T05:55:53+00:00"}}}
