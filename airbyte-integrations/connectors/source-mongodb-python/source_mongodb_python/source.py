@@ -153,37 +153,29 @@ class SourceMongodbPython(Source):
                     {
                         "$group": {
                             "_id": {"$cond": {"if": {"$eq": ["$op", "u"]}, "then": "$o2._id", "else": "$o._id"}},
-                            "operationType": {"$first": "$op"},
+                            "recentDate": {"$last": "$ts"},
+                            "operationType": {"$last": "$op"},
                         }
                     },
                 ]
                 distinct_ids_cursor = oplog.aggregate(cursor_pipeline)
-                recebt_date_pipeline = [
-                    {"$match": filtre},
-                    {
-                        "$group": {
-                            "_id": None,
-                            "recentDate": {"$max": "$ts"},
-                        }
-                    },
-                ]
-                recent_date = datetime.utcfromtimestamp(next(oplog.aggregate(recebt_date_pipeline), None)["recentDate"].time).strftime(
-                    "%Y-%m-%dT%H:%M:%S.%fZ"
-                )
                 deletes_to_process = []
                 distinct_ids_list = []
+                recent_dates = []
 
                 for id_obj in distinct_ids_cursor:
                     if id_obj["operationType"] == "d":
                         deletes_to_process.append(
                             {
                                 "_id": str(id_obj["_id"]),
-                                "_sdc_deleted_at": recent_date,
+                                "_sdc_deleted_at": datetime.utcfromtimestamp(id_obj["recentDate"].time).strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
                             }
                         )
                     else:
                         if id_obj["_id"] is not None:
                             distinct_ids_list.append(id_obj["_id"])
+                            recent_dates.append(id_obj["recentDate"])
+
                 logger.info(f"Sync objects for {collection_name} :{len(distinct_ids_list)} with deletes: {len(deletes_to_process)}")
 
                 for delete_doc in deletes_to_process:
@@ -195,7 +187,7 @@ class SourceMongodbPython(Source):
                     yield AirbyteMessage(type=Type.RECORD, record=record)
 
                 query = {"_id": {"$in": distinct_ids_list}}
-                _collection_last_update = recent_date
+                _collection_last_update = max(recent_dates).time if recent_dates else _collection_last_update
 
             cursor = collection.find(query)
 
