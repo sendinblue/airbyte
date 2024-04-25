@@ -179,6 +179,8 @@ class SourceMongodbPython(Source):
                 logger.info(f"Sync objects for {collection_name} :{len(distinct_ids_list)} with deletes: {len(deletes_to_process)}")
 
                 for delete_doc in deletes_to_process:
+                    if config.get("schemaless"):
+                        delete_doc = {"data": delete_doc}
                     record = AirbyteRecordMessage(
                         stream=collection_name,
                         data=delete_doc,
