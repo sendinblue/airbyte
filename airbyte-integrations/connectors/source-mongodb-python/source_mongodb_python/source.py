@@ -5,6 +5,7 @@
 from abc import ABC
 from datetime import datetime
 from typing import Any, Dict, Mapping, Optional, Tuple
+import re
 
 import pymongo
 import ssl
@@ -110,7 +111,7 @@ class SourceMongodbPython(Source):
             for doc in cursor:
                 for key in doc.keys():
                     schema["properties"][key] = {"type": "string"}
-            schema["properties"]["_sdc_deleted_at"] = {"type": "string"}
+        schema["properties"]["_sdc_deleted_at"] = {"type": "string"}
         schema["properties"]["_collection_last_update"] = {"type": "string"}
         return schema
 
@@ -124,7 +125,8 @@ class SourceMongodbPython(Source):
             stream = configured_stream.stream
             collection_name = stream.name
             collection = db[collection_name]
-            _collection_last_update = int(datetime.now().timestamp())
+            _collection_last_update = Timestamp(int(datetime.now().timestamp()), 0)
+
             query = {}
 
             if sync_mode == SyncMode.incremental:
@@ -135,12 +137,13 @@ class SourceMongodbPython(Source):
                         and state_message.stream.stream_descriptor.name == collection_name
                         and state_message.stream.stream_state._collection_last_update
                     ):
-                        state_collection_last_update = Timestamp(int(state_message.stream.stream_state._collection_last_update), 1)
+                        timestamp_value, increment = map(int, re.findall(r"\d+", state_message.stream.stream_state._collection_last_update))
+                        state_collection_last_update = Timestamp(timestamp_value, increment)
 
                 start_date = (
-                    Timestamp(int(datetime.strptime(config["start_date"], "%Y-%m-%dT%H:%M:%S").timestamp()), 1)
+                    Timestamp(int(datetime.strptime(config["start_date"], "%Y-%m-%dT%H:%M:%S").timestamp()), 0)
                     if config.get("start_date", None)
-                    else Timestamp(0, 1)
+                    else Timestamp(0, 0)
                 )
 
                 filtre = {
@@ -158,10 +161,12 @@ class SourceMongodbPython(Source):
                         }
                     },
                 ]
+
                 distinct_ids_cursor = oplog.aggregate(cursor_pipeline)
                 deletes_to_process = []
                 distinct_ids_list = []
                 recent_dates = []
+
 
                 for id_obj in distinct_ids_cursor:
                     if id_obj["operationType"] == "d":
@@ -171,16 +176,22 @@ class SourceMongodbPython(Source):
                                 "_sdc_deleted_at": datetime.utcfromtimestamp(id_obj["recentDate"].time).strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
                             }
                         )
+                        recent_dates.append(id_obj["recentDate"])
                     else:
                         if id_obj["_id"] is not None:
                             distinct_ids_list.append(id_obj["_id"])
                             recent_dates.append(id_obj["recentDate"])
 
                 logger.info(f"Sync objects for {collection_name} :{len(distinct_ids_list)} with deletes: {len(deletes_to_process)}")
+                _collection_last_update = str(max(recent_dates)) if recent_dates else str(_collection_last_update)
 
                 for delete_doc in deletes_to_process:
                     if config.get("schemaless"):
+                        _sdc_deleted_at = delete_doc["_sdc_deleted_at"]
+                        del delete_doc["_sdc_deleted_at"]
                         delete_doc = {"data": delete_doc}
+                        delete_doc["_sdc_deleted_at"] = _sdc_deleted_at
+                    delete_doc["_collection_last_update"] = _collection_last_update
                     record = AirbyteRecordMessage(
                         stream=collection_name,
                         data=delete_doc,
@@ -189,7 +200,6 @@ class SourceMongodbPython(Source):
                     yield AirbyteMessage(type=Type.RECORD, record=record)
 
                 query = {"_id": {"$in": distinct_ids_list}}
-                _collection_last_update = max(recent_dates).time if recent_dates else _collection_last_update
 
             cursor = collection.find(query)
 
@@ -216,3 +226,5 @@ class SourceMongodbPython(Source):
                 yield AirbyteMessage(type=Type.STATE, state=stream_state)
 
         client.close()
+
+

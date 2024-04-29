@@ -34,7 +34,7 @@ See `sample_files/sample_config.json` for a sample config file.
 poetry run source-mongodb-python spec
 poetry run source-mongodb-python check --config secrets/config.json
 poetry run source-mongodb-python discover --config secrets/config.json
-poetry run source-mongodb-python read --config secrets/config.json --catalog sample_files/configured_catalog.json
+poetry run source-mongodb-python read --config secrets/config.json --catalog integration_tests/configured_catalog.json
 ```
 
 ### Running tests
