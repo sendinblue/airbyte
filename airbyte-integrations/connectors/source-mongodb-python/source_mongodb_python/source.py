@@ -207,7 +207,7 @@ class SourceMongodbPython(Source):
                 doc = JsonEncoder().encode(doc)
                 if config.get("schemaless"):
                     doc = {"data": doc}
-                doc["_collection_last_update"] = _collection_last_update
+                doc["_collection_last_update"] = str(_collection_last_update)
                 record = AirbyteRecordMessage(
                     stream=collection_name,
                     data=doc,
