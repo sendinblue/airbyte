@@ -152,37 +152,34 @@ class SourceMongodbPython(Source):
                     "ns": f'{config["database"]}.{collection_name}',
                 }
                 cursor_pipeline = [
-                    {"$match": filtre},
-                    {
-                        "$group": {
-                            "_id": {"$cond": {"if": {"$eq": ["$op", "u"]}, "then": "$o2._id", "else": "$o._id"}},
-                            "recentDate": {"$last": "$ts"},
-                            "operationType": {"$last": "$op"},
-                        }
-                    },
+                    {"$match": filtre}
                 ]
 
-                distinct_ids_cursor = oplog.aggregate(cursor_pipeline)
+                ids_cursor = oplog.aggregate(cursor_pipeline)
+
                 deletes_to_process = []
-                distinct_ids_list = []
+                ids_list = []
                 recent_dates = []
 
 
-                for id_obj in distinct_ids_cursor:
-                    if id_obj["operationType"] == "d":
+                for id_obj in ids_cursor:
+                    if id_obj["op"] == "d":
                         deletes_to_process.append(
                             {
-                                "_id": str(id_obj["_id"]),
-                                "_sdc_deleted_at": datetime.utcfromtimestamp(id_obj["recentDate"].time).strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+                                "_id": str(id_obj["o"]["_id"]),
+                                "_sdc_deleted_at": datetime.utcfromtimestamp(id_obj["ts"].time).strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
                             }
                         )
-                        recent_dates.append(id_obj["recentDate"])
-                    else:
-                        if id_obj["_id"] is not None:
-                            distinct_ids_list.append(id_obj["_id"])
-                            recent_dates.append(id_obj["recentDate"])
+                        recent_dates.append(id_obj["ts"])
+                    elif id_obj["op"] == "i":
+                        ids_list.append(id_obj["o"]["_id"])
+                        recent_dates.append(id_obj["ts"])
+                    elif id_obj["op"] == "u":
+                        ids_list.append(id_obj["o2"]["_id"])
+                        recent_dates.append(id_obj["ts"])
 
-                logger.info(f"Sync objects for {collection_name} :{len(distinct_ids_list)} with deletes: {len(deletes_to_process)}")
+                ids_list= list(set(ids_list))
+                logger.info(f"Sync objects for {collection_name} :{len(ids_list)} with deletes: {len(deletes_to_process)}")
                 _collection_last_update = str(max(recent_dates)) if recent_dates else str(_collection_last_update)
 
                 for delete_doc in deletes_to_process:
@@ -199,7 +196,7 @@ class SourceMongodbPython(Source):
                     )
                     yield AirbyteMessage(type=Type.RECORD, record=record)
 
-                query = {"_id": {"$in": distinct_ids_list}}
+                query = {"_id": {"$in": ids_list}}
 
             cursor = collection.find(query)
 
