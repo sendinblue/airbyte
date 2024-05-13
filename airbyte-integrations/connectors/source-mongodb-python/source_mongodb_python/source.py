@@ -151,16 +151,13 @@ class SourceMongodbPython(Source):
                     "op": {"$in": ["i", "u", "d"]},
                     "ns": f'{config["database"]}.{collection_name}',
                 }
-                cursor_pipeline = [
-                    {"$match": filtre}
-                ]
+                cursor_pipeline = [{"$match": filtre}]
 
                 ids_cursor = oplog.aggregate(cursor_pipeline)
 
                 deletes_to_process = []
                 ids_list = []
                 recent_dates = []
-
 
                 for id_obj in ids_cursor:
                     if id_obj["op"] == "d":
@@ -178,7 +175,7 @@ class SourceMongodbPython(Source):
                         ids_list.append(id_obj["o2"]["_id"])
                         recent_dates.append(id_obj["ts"])
 
-                ids_list= list(set(ids_list))
+                ids_list = list(set(ids_list))
                 logger.info(f"Sync objects for {collection_name} :{len(ids_list)} with deletes: {len(deletes_to_process)}")
                 _collection_last_update = str(max(recent_dates)) if recent_dates else str(_collection_last_update)
 
@@ -223,5 +220,3 @@ class SourceMongodbPython(Source):
                 yield AirbyteMessage(type=Type.STATE, state=stream_state)
 
         client.close()
-
-
