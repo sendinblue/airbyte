@@ -133,6 +133,11 @@ definitions:
                 - type: HttpResponseFilter
                   action: IGNORE
                   error_message_contains: RecordNotFound
+            - type: DefaultErrorHandler
+              backoff_strategies:
+                - type: WaitTimeFromHeader
+                  header: Retry-After
+                  regex: ""
       record_selector:
         type: RecordSelector
         extractor:
