@@ -1,0 +1,202 @@
+version: 0.85.0
+
+type: DeclarativeSource
+
+check:
+  type: CheckStream
+  stream_names:
+    - connections
+
+definitions:
+  streams:
+    connections:
+      type: DeclarativeStream
+      name: connections
+      retriever:
+        type: SimpleRetriever
+        requester:
+          $ref: "#/definitions/base_requester"
+          path: /v1/connections
+          http_method: GET
+          request_headers:
+            CF-Access-Client-Id: "{{ config['cloudflare_client_id'] }}"
+            CF-Access-Client-Secret: "{{ config['cloudflare_client_secret'] }}"
+        record_selector:
+          type: RecordSelector
+          extractor:
+            type: DpathExtractor
+            field_path:
+              - data
+        paginator:
+          type: DefaultPaginator
+          page_token_option:
+            type: RequestOption
+            inject_into: request_parameter
+            field_name: offset
+          page_size_option:
+            type: RequestOption
+            inject_into: request_parameter
+            field_name: limit
+          pagination_strategy:
+            type: OffsetIncrement
+            page_size: 100
+            inject_on_first_request: false
+      schema_loader:
+        type: InlineSchemaLoader
+        schema:
+          $ref: "#/schemas/connections"
+  base_requester:
+    type: HttpRequester
+    url_base: https://{{ config['host'] }}
+    authenticator:
+      type: BasicHttpAuthenticator
+      username: '{{ config["username"] }}'
+      password: '{{ config["password"] }}'
+
+streams:
+  - $ref: "#/definitions/streams/connections"
+
+spec:
+  type: Spec
+  connection_specification:
+    type: object
+    $schema: http://json-schema.org/draft-07/schema#
+    required:
+      - host
+      - username
+      - cloudflare_client_id
+      - cloudflare_client_secret
+    properties:
+      host:
+        type: string
+        title: host
+        order: 0
+      username:
+        type: string
+        title: Username
+        order: 1
+      password:
+        type: string
+        title: Password
+        always_show: true
+        airbyte_secret: true
+        order: 2
+      cloudflare_client_id:
+        type: string
+        title: Cloudflare Client Id
+        order: 3
+      cloudflare_client_secret:
+        type: string
+        title: Cloudflare Client Secret
+        order: 4
+    additionalProperties: true
+
+metadata:
+  autoImportSchema:
+    connections: true
+
+schemas:
+  connections:
+    type: object
+    $schema: http://json-schema.org/schema#
+    additionalProperties: true
+    properties:
+      configurations:
+        type:
+          - object
+          - "null"
+        properties:
+          streams:
+            type:
+              - array
+              - "null"
+            items:
+              type:
+                - object
+                - "null"
+              properties:
+                cursorField:
+                  type:
+                    - array
+                    - "null"
+                  items:
+                    type:
+                      - string
+                      - "null"
+                name:
+                  type:
+                    - string
+                    - "null"
+                primaryKey:
+                  type:
+                    - array
+                    - "null"
+                  items:
+                    type:
+                      - array
+                      - "null"
+                    items:
+                      type:
+                        - string
+                        - "null"
+                syncMode:
+                  type:
+                    - string
+                    - "null"
+      connectionId:
+        type:
+          - string
+          - "null"
+      dataResidency:
+        type:
+          - string
+          - "null"
+      destinationId:
+        type:
+          - string
+          - "null"
+      name:
+        type:
+          - string
+          - "null"
+      namespaceDefinition:
+        type:
+          - string
+          - "null"
+      namespaceFormat:
+        type:
+          - string
+          - "null"
+      nonBreakingSchemaUpdatesBehavior:
+        type:
+          - string
+          - "null"
+      prefix:
+        type:
+          - string
+          - "null"
+      schedule:
+        type:
+          - object
+          - "null"
+        properties:
+          cronExpression:
+            type:
+              - string
+              - "null"
+          scheduleType:
+            type:
+              - string
+              - "null"
+      sourceId:
+        type:
+          - string
+          - "null"
+      status:
+        type:
+          - string
+          - "null"
+      workspaceId:
+        type:
+          - string
+          - "null"
