@@ -1,13 +1,12 @@
-# Copyright (c) 2024 Airbyte, Inc., all rights reserved.
-
 import decimal
-import hashlib
 import http
 import json
 import math
-import re
 import sys
 import urllib
+import hashlib
+import re
+
 from datetime import datetime
 from logging import getLogger
 
@@ -69,7 +68,9 @@ def walk_schema_for_numeric_precision(schema):
     elif isinstance(schema, dict):
         if numeric_schema_with_precision(schema):
             scale = -1 * get_precision("multipleOf", schema)
-            digits = max(get_precision("minimum", schema), get_precision("maximum", schema))
+            digits = max(
+                get_precision("minimum", schema), get_precision("maximum", schema)
+            )
             precision = digits + scale
             if decimal.getcontext().prec < precision:
                 LOGGER.debug("Setting decimal precision to {}".format(precision))
@@ -104,7 +105,10 @@ def send_usage_stats():
 def datetime_to_ads_format(conversion_date):
     conversion_datetime = datetime.strptime(conversion_date, "%Y-%m-%dT%H:%M:%S%z").strftime("%Y-%m-%d %H:%M:%S%z")
 
-    timestamp_string = "{0}:{1}".format(conversion_datetime[:-2], conversion_datetime[-2:])
+    timestamp_string = "{0}:{1}".format(
+        conversion_datetime[:-2],
+        conversion_datetime[-2:]
+    )
 
     return timestamp_string
 

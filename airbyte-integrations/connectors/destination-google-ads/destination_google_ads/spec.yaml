@@ -36,5 +36,5 @@ connectionSpecification:
     offline_conversion:
       type: string
       title: Type offline Conversion
-      enum: ["Click Conversions"]
-      default: "Click Conversions"
+      enum: ["click_conversions"]
+      default: "click_conversions"

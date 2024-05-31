@@ -1,5 +1,3 @@
-# Copyright (c) 2024 Airbyte, Inc., all rights reserved.
-
 from logging import getLogger
 
 LOGGER = getLogger("airbyte")
@@ -17,7 +15,6 @@ def _print_google_ads_failures(client, status):
         status: a google.rpc.Status instance.
     """
     for detail in status.details:
-        print(detail)
         google_ads_failure = client.get_type("GoogleAdsFailure")
         # Retrieve the class definition of the GoogleAdsFailure instance
         # with type() in order to use the "deserialize" class method to parse
@@ -34,7 +31,11 @@ def _print_google_ads_failures(client, status):
 
 def print_results(client, response):
     # Check for existence of any partial failures in the response.
-    if response.partial_failure_error:
+    partial_failure = getattr(response, "partial_failure_error", None)
+    code = getattr(partial_failure, "code", None)
+    if code != 0:
         _print_google_ads_failures(client, response.partial_failure_error)
     else:
-        LOGGER.info("All operations completed successfully. No partial failure to show.")
+        LOGGER.info(
+            "All operations completed successfully. No partial failure to show."
+        )

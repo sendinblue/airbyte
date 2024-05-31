@@ -14,11 +14,10 @@ class GoogleAdsHandler:
         self.oauth_client_secret = config["oauth_client_secret"]
         self.refresh_token = config["refresh_token"]
         self.customer_id = config["customer_id"]
-        self.offline_conversion = config["offline_conversion"].replace(" ", "_").lower()
+
         self.api_version = "v15"
 
         self.batch_size = 500
-        self.write_batch = []
         self.client = self.__get_client()
 
     def __get_client(self):
@@ -43,20 +42,17 @@ class GoogleAdsHandler:
         customer_service = self.client.get_service("CustomerService")
         accessible_customers = customer_service.list_accessible_customers()
         return accessible_customers.resource_names
-
-    def queue_batch(self, data: Mapping):
-        if "conversion_id" not in data:
-            raise Exception(f"Need a Conversion Id to upload conversion data")
-        else:
-            record = click_conversions(self.client, data, self.customer_id, data["conversion_id"])
-
-        self.write_batch.append(record)
-        if len(self.write_batch) == self.batch_size:
-            self.flush()
-
-    def flush(self):
-        self.send_data(self.write_batch)
-        self.write_batch.clear()
+    
+    def write_message(self, conversion_handler, message: Mapping[str, str]) -> None:
+        """
+        Write message to google ads API
+        :param conversion_handler: Function to handle conversion
+        :param message: Conversion message in json format
+        :return: click conversion
+        """
+        conversion_id = message["conversion_id"]
+        record = conversion_handler(self.client, self.customer_id, conversion_id, message)
+        return record
 
     def send_data(self, data: list) -> None:
         """
@@ -66,10 +62,13 @@ class GoogleAdsHandler:
         """
         conversion_upload_service = self.client.get_service("ConversionUploadService")
         request = self.client.get_type("UploadClickConversionsRequest")
-        request.customer_id = self.customer_id
+        request.customer_id = str(self.customer_id)
         request.conversions.extend(data)
         request.partial_failure = True
         conversion_upload_response = conversion_upload_service.upload_click_conversions(
             request=request,
         )
         print_results(self.client, conversion_upload_response)
+
+
+    
