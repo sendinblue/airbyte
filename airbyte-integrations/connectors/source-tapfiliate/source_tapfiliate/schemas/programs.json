@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "properties": {
+    "cookie_time": {
+      "type": "number"
+    },
+    "currency": {
+      "type": "string"
+    },
+    "currency_symbol": {
+      "type": "string"
+    },
+    "default_landing_page_url": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string"
+    },
+    "program_category": {
+      "properties": {
+        "id": {
+          "type": "number"
+        },
+        "identifier": {
+          "type": "string"
+        },
+        "is_admitad_suitable": {
+          "type": "boolean"
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "recurring": {
+      "type": "boolean"
+    },
+    "recurring_cap": {
+      "type": [
+        "null",
+        "number"
+      ]
+    },
+    "recurring_period_days": {
+      "type": [
+        "null",
+        "number"
+      ]
+    },
+    "title": {
+      "type": "string"
+    }
+  },
+  "type": "object"
+}

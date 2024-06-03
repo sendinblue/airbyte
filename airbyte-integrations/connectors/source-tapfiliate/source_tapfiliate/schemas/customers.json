@@ -1,0 +1,97 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "properties": {
+    "affiliate": {
+      "properties": {
+        "firstname": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "lastname": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "affiliate_meta_data": {
+      "properties": {
+        "post_slug": {
+          "type": "string"
+        },
+        "subid1": {
+          "type": "string"
+        }
+      },
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "click": {
+      "properties": {
+        "created_at": {
+          "type": "string"
+        },
+        "landing_page": {
+          "type": "string"
+        },
+        "referrer": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "customer_id": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string"
+    },
+    "meta_data": {
+      "type": "object"
+    },
+    "program": {
+      "properties": {
+        "currency": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "status": {
+      "type": "string"
+    },
+    "warnings": {
+      "items": {
+        "properties": {
+          "code": {
+            "type": "number"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "type": [
+        "array",
+        "null"
+      ]
+    }
+  },
+  "type": "object"
+}
