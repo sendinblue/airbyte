@@ -1,0 +1,163 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "properties": {
+      "affiliate": {
+        "properties": {
+          "firstname": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "lastname": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "affiliate_meta_data": {
+        "properties": {
+          "post_slug": {
+            "type": "string"
+          },
+          "subid1": {
+            "type": "string"
+          }
+        },
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "amount": {
+        "type": "number"
+      },
+      "click": {
+        "properties": {
+          "created_at": {
+            "type": "string"
+          },
+          "landing_page": {
+            "type": "string"
+          },
+          "referrer": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "commissions": {
+        "items": {
+          "properties": {
+            "affiliate": {
+              "properties": {
+                "firstname": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "lastname": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "amount": {
+              "type": "number"
+            },
+            "approved": {
+              "type": "boolean"
+            },
+            "commission_name": {
+              "type": "string"
+            },
+            "commission_type": {
+              "type": "string"
+            },
+            "conversion_sub_amount": {
+              "type": "number"
+            },
+            "created_at": {
+              "type": "string"
+            },
+            "currency": {
+              "type": "string"
+            },
+            "final": {
+              "type": "boolean"
+            },
+            "id": {
+              "type": "number"
+            },
+            "kind": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "type": "array"
+      },
+      "created_at": {
+        "type": "string"
+      },
+      "customer": {
+        "properties": {
+          "customer_id": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "external_id": {
+        "type": "string"
+      },
+      "id": {
+        "type": "number"
+      },
+      "meta_data": {
+        "type": "object"
+      },
+      "program": {
+        "properties": {
+          "currency": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "warnings": {
+        "items": {
+          "properties": {
+            "code": {
+              "type": "number"
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "type": [
+          "array",
+          "null"
+        ]
+      }
+    },
+    "type": "object"
+  }

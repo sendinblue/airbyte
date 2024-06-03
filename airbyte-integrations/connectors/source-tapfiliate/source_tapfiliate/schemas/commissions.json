@@ -1,0 +1,62 @@
+
+{
+    "$schema": "http://json-schema.org/schema#",
+    "properties": {
+      "affiliate": {
+        "properties": {
+          "firstname": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "lastname": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "amount": {
+        "type": "number"
+      },
+      "approved": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "commission_name": {
+        "type": "string"
+      },
+      "commission_type": {
+        "type": "string"
+      },
+      "conversion": {
+        "properties": {
+          "id": {
+            "type": "number"
+          }
+        },
+        "type": "object"
+      },
+      "conversion_sub_amount": {
+        "type": "number"
+      },
+      "created_at": {
+        "type": "string"
+      },
+      "currency": {
+        "type": "string"
+      },
+      "final": {
+        "type": "boolean"
+      },
+      "id": {
+        "type": "number"
+      },
+      "kind": {
+        "type": "string"
+      }
+    },
+    "type": "object"
+  }
