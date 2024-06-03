@@ -6,7 +6,6 @@ import logging
 
 from typing import Any, Iterable, Mapping
 
-from airbyte_cdk import AirbyteLogger
 from airbyte_cdk.destinations import Destination
 from airbyte_cdk.models import AirbyteConnectionStatus, AirbyteMessage, FailureType, ConfiguredAirbyteCatalog, Status, Type
 from airbyte_cdk.utils import AirbyteTracedException
