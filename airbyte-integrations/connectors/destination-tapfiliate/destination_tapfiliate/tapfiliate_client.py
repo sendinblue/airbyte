@@ -27,22 +27,7 @@ class TapfiliateRestApi:
         else:
             url = f"{self.api_base}/{self.api_version}/{end_point}"
         return requests.request(method= method, url= url, headers=headers, timeout=60, json=data)
-    
-    def _request_retry(self, response, current_retry, erreur = None):
-        if current_retry < self.retry:
-            logger.warning(
-                f"Unexpected response status_code {response.status_code} i need to sleep 60s before retry {current_retry}/{self.retry}"
-            )
-            time.sleep(60)
-            current_retry = current_retry + 1
-            return current_retry
-        else:
-            if erreur:
-                raise erreur
-            else:
-                erreur = RuntimeError(
-                    f"Too many retry, status_code {response.status_code} : {response.content}"
-                            )
+
 
     def get_sync_endpoints(self, end_point, parameters={}):
 
@@ -54,15 +39,26 @@ class TapfiliateRestApi:
         current_retry = 0
 
         while more_pages:
+            if is_first_call:
+                    logger.info(f"Get from URL (first call) : {end_point}/?page={parameters['page']}")
+            else:
+                logger.debug(f"Get from URL : {end_point}/pages={parameters['page']}")
+            
             try:
                 response =  self._send_request(method='GET', end_point=end_point, parameters=parameters)
-                if is_first_call:
-                    logger.info(f"Get from URL (first call) : {end_point}/?page={parameters['page']}")
-                else:
-                    logger.debug(f"Get from URL : {end_point}/pages={parameters['page']}")
-
                 if response.status_code != 200:
-                    current_retry = self._request_retry(self, response, current_retry)
+                    if response.status_code != 200:
+                        if current_retry < self.retry:
+                            logger.warning(
+                                f"Unexpected response status_code {response.status_code} i need to sleep 60s before retry {current_retry}/{self.retry}"
+                            )
+                            time.sleep(60)
+                            current_retry = current_retry + 1
+                        else:
+                           logger.warning(
+                                f"Too many retry, last response status_code {response.status_code} : {response.content}"
+                            )
+                           more_pages = False
                 else:
                     records = json.loads(response.content.decode("utf-8"))
 
@@ -93,14 +89,32 @@ class TapfiliateRestApi:
                             logger.warning(f"Remaining {x_ratelimit_remaining} call, I prefer to sleep {sleep_duration} seconds until the rest.")
                             time.sleep(sleep_duration)
             except Exception as e:
-                current_retry = self._request_retry(self, response, current_retry, e)
+                if current_retry < self.retry:
+                    logger.warning(
+                        f"I need to sleep 60 s, Because last get call to {end_point} raised exception : {e}"
+                    )
+                    time.sleep(60)
+                    current_retry = current_retry + 1
+                else:
+                    raise e
 
     def post_sync_endpoints(self,end_point, payload):
         current_retry = 0
-        while True:
+        loop = True
+        while loop:
             response = self._send_request(method='POST', end_point=end_point, data=payload)
             if response.status_code != 200:
-                current_retry = self._request_retry(response, current_retry)
+                if current_retry < self.retry:
+                    logger.warning(
+                        f"Unexpected response status_code {response.status_code} i need to sleep 60s before retry {current_retry}/{self.retry}"
+                    )
+                    time.sleep(60)
+                    current_retry = current_retry + 1
+                else:
+                    logger.warning(
+                        f"Too many retry, last response status_code {response.status_code} : {response.content}"
+                    )
+                    loop = False
             else:
                 return json.loads(response.text)
 
@@ -179,5 +193,8 @@ class TapfiliateRestApi:
                 )
         end_point = f"conversions/{uri_parameters.get('conversion_id')}/commissions/"
         response = self.post_sync_endpoints(end_point, payload)
-        logger.info(f"New commission {response} added to conversion {uri_parameters.get('conversion_id')}")
+        if response is None:
+            logger.warning(f"Error while adding commission to conversion {uri_parameters.get('conversion_id')}")
+        else:
+            logger.info(f"New commission {response} added to conversion {uri_parameters.get('conversion_id')}")
         return True
