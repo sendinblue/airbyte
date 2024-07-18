@@ -10,9 +10,10 @@ This source can sync data for the [general Planhat API](https://docs.planhat.com
 
 This Source is capable of syncing the following core Streams:
 
+- [churn](https://docs.planhat.com/#churn)
 - [companies](https://docs.planhat.com/#companies)
 - [conversations](https://docs.planhat.com/#conversations)
-- [custom_fields](https://docs.planhat.com/#custom_fields)
+- [customfields](https://docs.planhat.com/#custom_fields)
 - [endusers](https://docs.planhat.com/#endusers)
 - [invoices](https://docs.planhat.com/#invoices)
 - [issues](https://docs.planhat.com/#issues)

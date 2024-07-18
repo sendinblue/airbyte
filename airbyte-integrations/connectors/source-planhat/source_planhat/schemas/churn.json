@@ -6,34 +6,34 @@
     "_id": {
       "type": ["string", "null"]
     },
-    "cId": {
+    "snoozed": {
+      "type": ["boolean", "null"]
+    },
+    "createdAt": {
+      "type": ["array", "null"]
+    },
+    "companyId": {
       "type": ["string", "null"]
     },
-    "email": {
+    "churnDate": {
       "type": ["string", "null"]
     },
-    "euId": {
+    "currency": {
       "type": ["string", "null"]
     },
-    "campaignId": {
+    "companyName": {
       "type": ["string", "null"]
     },
-    "score": {
-      "type": ["integer", "null"]
+    "reasons": {
+      "type": ["array"],
+      "items": {
+        "type": "string"
+      }
     },
-    "comment": {
-      "type": ["string", "null"]
+    "updatedAt": {
+      "type": ["number", "null"]
     },
-    "sourceId": {
-      "type": ["string", "null"]
-    },
-    "dateSent": {
-      "type": ["string", "null"]
-    },
-    "dateAnswered": {
-      "type": ["string", "null"]
-    },
-    "source": {
+    "description": {
       "type": ["string", "null"]
     },
     "custom": {
