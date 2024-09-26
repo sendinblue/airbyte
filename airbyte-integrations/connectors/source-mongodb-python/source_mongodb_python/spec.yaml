@@ -1,0 +1,42 @@
+documentationUrl: https://docsurl.com
+connectionSpecification:
+  $schema: http://json-schema.org/draft-07/schema#
+  title: Mongodb Python Spec
+  type: object
+  required:
+    - host
+    - database
+  properties:
+    host:
+      type: string
+      description: The server's hostname or IP address.
+    port:
+      type: string
+      description: (Optional) The port number for database connections.
+    username:
+      type: string
+      description: (Optional) The login username for database access.
+    password:
+      type: string
+      description: (Optional) The password associated with the username.
+    database:
+      type: string
+      description: The name of the database to connect to.
+    replica_set:
+      type: string
+      description: (Optional) The name of the database's replica set.
+    authsource:
+      type: string
+      description: (Optional) The authentication source.
+    ssl:
+      type: boolean
+      description: (Optional) Use SSL encryption for the connection.
+    schemaless:
+      type: boolean
+      description: (Optional) Enable schemaless mode for the database.
+      default: false
+    start_date:
+      type: string
+      pattern: ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}$
+      default: "2022-10-01T00:00:00"
+      description: (Optional) Specify Date and time from which you want to fetch data    
