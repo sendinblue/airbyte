@@ -1,0 +1,28 @@
+[build-system]
+requires = [ "poetry-core>=1.0.0", "google-ads==23.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+version = "0.2.0"
+name = "destination-google-ads"
+description = "Destination implementation for google-ads."
+authors = [ "Airbyte <contact@airbyte.io>",]
+license = "MIT"
+readme = "README.md"
+documentation = "https://docs.airbyte.com/integrations/destinations/google-ads"
+homepage = "https://airbyte.com"
+repository = "https://github.com/airbytehq/airbyte"
+packages = [ { include = "destination_google_ads" }, {include = "main.py" } ]
+
+[tool.poetry.dependencies]
+python = "^3.9,<3.12"
+airbyte-cdk = "^0"
+google-ads = "25.0.0"
+
+[tool.poetry.scripts]
+destination-google-ads = "destination_google_ads.run:run"
+
+[tool.poetry.group.dev.dependencies]
+requests-mock = "*"
+pytest-mock = "*"
+pytest = "*"
