@@ -1,0 +1,40 @@
+documentationUrl: https://docs.airbyte.com/integrations/destinations/google-ads
+supported_destination_sync_modes:
+  - append
+supportsIncremental: true
+connectionSpecification:
+  $schema: http://json-schema.org/draft-07/schema#
+  title: Destination Google Ads
+  type: object
+  required:
+    - oauth_client_id
+    - oauth_client_secret
+    - refresh_token
+    - developer_token
+    - customer_id
+    - offline_conversion
+  additionalProperties: false
+  properties:
+    oauth_client_id:
+      title: Google Client ID
+      type: string
+    oauth_client_secret:
+      title: Google Client Secret
+      type: string
+      airbyte_secret: true
+    refresh_token:
+      title: Google Refresh Token
+      type: string
+      airbyte_secret: true
+    developer_token:
+      title: Google Developer Token
+      type: string
+      airbyte_secret: true
+    customer_id:
+      title: Customer ID
+      type: string
+    offline_conversion:
+      type: string
+      title: Type offline Conversion
+      enum: ["click_conversions"]
+      default: "click_conversions"

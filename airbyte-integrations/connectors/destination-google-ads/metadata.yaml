@@ -1,0 +1,27 @@
+data:
+  registries:
+    oss:
+      enabled: true
+    cloud:
+      enabled: false
+  connectorBuildOptions:
+    # Please update to the latest version of the connector base image.
+    # Please use the full address with sha256 hash to guarantee build reproducibility.
+    # https://hub.docker.com/r/airbyte/python-connector-base
+    baseImage: docker.io/airbyte/python-connector-base:1.2.0@sha256:c22a9d97464b69d6ef01898edf3f8612dc11614f05a84984451dde195f337db9
+  connectorSubtype: database
+  connectorType: destination
+  definitionId: 07dc6177-8122-47c2-a351-a737fe5942f2
+  dockerImageTag: 0.1.0
+  dockerRepository: airbyte/destination-google-ads
+  githubIssueLabel: destination-google-ads
+  icon: google-ads.svg
+  license: MIT
+  name: Google Ads
+  releaseDate: TODO
+  releaseStage: alpha
+  supportLevel: community
+  documentationUrl: https://docs.airbyte.com/integrations/destinations/google-ads
+  tags:
+    - language:python
+metadataSpecVersion: "1.0"
