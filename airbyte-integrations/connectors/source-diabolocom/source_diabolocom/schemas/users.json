@@ -1,0 +1,130 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "type": "object",
+  "properties": {
+    "buttonForTabActivation": {
+      "type": "boolean"
+    },
+    "createdAt": {
+      "type": "string"
+    },
+    "createdBy": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "firstName": {
+      "type": "string"
+    },
+    "folder": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "id": {
+      "type": "number"
+    },
+    "isAllowProlongateWrapup": {
+      "type": "boolean"
+    },
+    "isDisabled": {
+      "type": "boolean"
+    },
+    "isLimitWrapupTime": {
+      "type": "boolean"
+    },
+    "lastLoginAt": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "lastName": {
+      "type": "string"
+    },
+    "lastUpdatedAt": {
+      "type": "string"
+    },
+    "lastUpdatedBy": {
+      "type": "string"
+    },
+    "locale": {
+      "type": "string"
+    },
+    "maxEmails": {
+      "type": "number"
+    },
+    "maxTransfers": {
+      "type": "number"
+    },
+    "missedCallsThreshold": {
+      "type": "number"
+    },
+    "name": {
+      "type": "string"
+    },
+    "number": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "profileId": {
+      "type": "number"
+    },
+    "role": {
+      "type": "string"
+    },
+    "skillChannels": {
+      "items": {
+        "properties": {
+          "channel": {
+            "type": "string"
+          },
+          "skills": {
+            "items": {
+              "properties": {
+                "disabled": {
+                  "type": "boolean"
+                },
+                "id": {
+                  "type": "number"
+                },
+                "level": {
+                  "type": "number"
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "statusSetId": {
+      "type": "number"
+    },
+    "tabsManagementMode": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "timezone": {
+      "type": "string"
+    },
+    "wrapupAdditionalTimeout": {
+      "type": "number"
+    },
+    "wrapupTimeout": {
+      "type": "number"
+    }
+  }
+}
