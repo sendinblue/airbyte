@@ -15,7 +15,7 @@ class GoogleAdsHandler:
         self.refresh_token = config["refresh_token"]
         self.customer_id = config["customer_id"]
 
-        self.api_version = "v15"
+        self.api_version = "v17"
 
         self.batch_size = 500
         self.client = self.__get_client()

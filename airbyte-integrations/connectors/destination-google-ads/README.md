@@ -50,7 +50,7 @@ poetry run pytest tests
 1. Install [`airbyte-ci`](https://github.com/airbytehq/airbyte/blob/master/airbyte-ci/connectors/pipelines/README.md)
 2. Run the following command to build the docker image:
 ```bash
-airbyte-ci connectors --name=destination-google-ads build
+airbyte-ci connectors --name=destination-google-ads build --architecture=linux/amd64
 ```
 
 An image will be available on your host with the tag `airbyte/destination-google-ads:dev`.
