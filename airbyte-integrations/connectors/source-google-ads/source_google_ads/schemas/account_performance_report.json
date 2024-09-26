@@ -227,6 +227,12 @@
       "description": "Conversions where the display ad was shown but not clicked",
       "type": ["null", "integer"]
     },
+    "metrics.invalid_clicks": {
+      "type": ["null", "integer"]
+    },
+    "metrics.invalid_click_rate": {
+      "type": ["null", "integer"]
+    },
     "segments.week": {
       "description": "Week of the year",
       "type": ["null", "string"]

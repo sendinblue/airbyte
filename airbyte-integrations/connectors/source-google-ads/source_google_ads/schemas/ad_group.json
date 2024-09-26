@@ -2,6 +2,9 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
+    "customer.id": {
+      "type": ["null", "string"]
+    },
     "campaign.id": {
       "description": "The unique identifier of the campaign to which the ad group belongs.",
       "type": ["null", "integer"]
@@ -58,7 +61,7 @@
       "description": "Field types excluded from being used as asset fields in the ad group.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "ad_group.optimized_targeting_enabled": {
@@ -77,7 +80,7 @@
       "description": "Labels associated with the ad group.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "ad_group.name": {
@@ -112,7 +115,7 @@
       "description": "Targeting restrictions defined for the ad group.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "ad_group.tracking_url_template": {
@@ -127,8 +130,17 @@
       "description": "Custom parameters for the ad group's URLs.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
+    },
+    "ad_group.effective_cpc_bid_micros": {
+      "type": ["null", "integer"]
+    },
+    "bidding_strategy.id": {
+      "type": ["null", "integer"]
+    },
+    "accessible_bidding_strategy.id": {
+      "type": ["null", "integer"]
     },
     "segments.date": {
       "description": "The date segment for the data.",

@@ -194,14 +194,14 @@
       "description": "Final mobile URLs for the ad.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "ad_group_ad.ad.final_urls": {
       "description": "Final URLs for the ad.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "ad_group_ad.ad.tracking_url_template": {
@@ -212,7 +212,7 @@
       "description": "Custom parameters for the ad URL.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "metrics.cross_device_conversions": {
@@ -364,7 +364,7 @@
       "description": "Types of interaction events with the ad.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "metrics.interactions": {
@@ -403,7 +403,7 @@
       "description": "Descriptions for the responsive display ad.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "ad_group_ad.ad.responsive_display_ad.price_prefix": {
@@ -422,21 +422,21 @@
       "description": "Headlines for the responsive display ad.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "ad_group_ad.ad.responsive_display_ad.logo_images": {
       "description": "Logo images for the responsive display ad.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "ad_group_ad.ad.responsive_display_ad.square_logo_images": {
       "description": "Square logo images for the responsive display ad.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "ad_group_ad.ad.responsive_display_ad.long_headline": {
@@ -451,21 +451,21 @@
       "description": "Marketing images for the responsive display ad.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "ad_group_ad.ad.responsive_display_ad.square_marketing_images": {
       "description": "Square marketing images for the responsive display ad.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "ad_group_ad.ad.responsive_display_ad.youtube_videos": {
       "description": "YouTube videos for the responsive display ad.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "ad_group_ad.ad.expanded_text_ad.path1": {
@@ -496,14 +496,14 @@
       "description": "Descriptions for the responsive search ad.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "ad_group_ad.ad.responsive_search_ad.headlines": {
       "description": "Headlines for the responsive search ad.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "ad_group_ad.ad.responsive_search_ad.path1": {
@@ -534,28 +534,28 @@
       "description": "Descriptions for the app ad.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "ad_group_ad.ad.app_ad.headlines": {
       "description": "Headlines for the app ad.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "ad_group_ad.ad.app_ad.html5_media_bundles": {
       "description": "HTML5 media bundles for the app ad.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "ad_group_ad.ad.app_ad.images": {
       "description": "Images for the app ad.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "ad_group_ad.ad.app_ad.mandatory_ad_text": {
@@ -566,7 +566,7 @@
       "description": "YouTube videos for the app ad.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "metrics.value_per_all_conversions": {

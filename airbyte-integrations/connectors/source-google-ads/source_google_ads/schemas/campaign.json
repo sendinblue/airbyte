@@ -2,6 +2,9 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
+    "customer.id": {
+      "type": ["null", "string"]
+    },
     "campaign.accessible_bidding_strategy": {
       "description": "The accessible bidding strategy of the campaign.",
       "type": ["null", "string"]
@@ -50,6 +53,9 @@
       "description": "The budget amount in micros allocated for the campaign.",
       "type": ["null", "integer"]
     },
+    "campaign_budget.id": {
+      "type": ["null", "integer"]
+    },
     "campaign.commission.commission_rate_micros": {
       "description": "The commission rate in micros for the campaign.",
       "type": ["null", "integer"]
@@ -62,7 +68,7 @@
       "description": "List of feeds utilized for dynamic search ads.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "campaign.dynamic_search_ads_setting.language_code": {
@@ -81,7 +87,7 @@
       "description": "Types of parent asset fields excluded from the campaign.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "campaign.experiment_type": {
@@ -96,7 +102,7 @@
       "description": "Caps on ad serving frequency for the campaign.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "campaign.geo_target_type_setting.negative_geo_target_type": {
@@ -119,7 +125,7 @@
       "description": "Labels associated with the campaign.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "campaign.local_campaign_setting.location_source_type": {
@@ -170,7 +176,7 @@
       "description": "Types of optimization goals set for the campaign.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "campaign.optimization_score": {
@@ -201,7 +207,7 @@
       "description": "Conversion actions selected for selective optimization within the campaign.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "campaign.serving_status": {
@@ -284,7 +290,7 @@
       "description": "Restrictions applied to targeting within the campaign.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "campaign.tracking_setting.tracking_url": {
@@ -299,7 +305,7 @@
       "description": "Custom parameters added to campaign URLs.",
       "type": ["null", "array"],
       "items": {
-        "type": "string"
+        "type": "object"
       }
     },
     "campaign.vanity_pharma.vanity_pharma_display_url_mode": {
@@ -313,6 +319,18 @@
     "campaign.video_brand_safety_suitability": {
       "description": "The brand safety suitability settings for video ads within the campaign.",
       "type": ["null", "string"]
+    },
+    "campaign.audience_setting.use_audience_grouped": {
+      "type": ["null", "boolean"]
+    },
+    "campaign.url_expansion_opt_out": {
+      "type": ["null", "boolean"]
+    },
+    "bidding_strategy.id": {
+      "type": ["null", "integer"]
+    },
+    "accessible_bidding_strategy.id": {
+      "type": ["null", "integer"]
     },
     "metrics.clicks": {
       "description": "Total number of clicks in the campaign.",
