@@ -19,7 +19,7 @@ data:
   connectorSubtype: api
   connectorType: source
   definitionId: 51664ff4-60db-4dd0-afee-e839541ff0c3
-  dockerImageTag: 0.1.0
+  dockerImageTag: 0.0.1.6
   dockerRepository: airbyte/source-tapfiliate
   githubIssueLabel: source-tapfiliate
   icon: tapfiliate.svg

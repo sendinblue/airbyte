@@ -2,7 +2,7 @@
   "streams": [
     {
       "stream": {
-        "name": "affiliate-groups",
+        "name": "affiliate_groups",
         "json_schema": {},
         "supported_sync_modes": ["full_refresh"]
       },
@@ -11,7 +11,7 @@
     },
     {
       "stream": {
-        "name": "affiliate-prospects",
+        "name": "affiliate_prospects",
         "json_schema": {},
         "supported_sync_modes": ["full_refresh"]
       },

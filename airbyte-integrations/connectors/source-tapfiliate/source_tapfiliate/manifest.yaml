@@ -123,7 +123,7 @@ streams:
       $ref: "#/definitions/pagination_incremental_sync"
   - type: DeclarativeStream
     $parameters:
-      name: "affiliate-groups"
+      name: "affiliate_groups"
     primary_key: "id"
     schema_loader:
       $ref: "#/definitions/schema_loader"
@@ -134,7 +134,7 @@ streams:
         path: "/affiliate-groups"
   - type: DeclarativeStream
     $parameters:
-      name: "affiliate-prospects"
+      name: "affiliate_prospects"
     primary_key: "id"
     schema_loader:
       $ref: "#/definitions/schema_loader"
@@ -151,8 +151,8 @@ check:
     - "programs"
     - "commissions"
     - "affiliates"
-    - "affiliate-groups"
-    - "affiliate-prospects"
+    - "affiliate_groups"
+    - "affiliate_prospects"
 
 spec:
   type: Spec
