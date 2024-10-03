@@ -1,0 +1,70 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "properties": {
+      "kind": {
+        "type": "string"
+      },
+      "affiliate": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "firstname": {
+            "type": "string"
+          },
+          "lastname": {
+            "type": "string"
+          }
+        }
+      },
+      "currency": {
+        "type": "string"
+      },
+      "id": {
+        "type": "integer"
+      },
+      "created_at": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "conversion": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          }
+        }
+      },
+      "payout": {
+        "type": ["null", "number"]
+      },
+      "commission_type": {
+        "type": "string"
+      },
+      "commission_name": {
+        "type": "string"
+      },
+      "approved": {
+        "type": "boolean"
+      },
+      "amount": {
+        "type": "number"
+      },
+      "comment": {
+        "type": ["null", "string"]
+      },
+      "finalization_date": {
+        "type": ["null", "string"],
+        "format": "date-time"
+      },
+      "conversion_sub_amount": {
+        "type": "number"
+      },
+      "final": {
+        "type": "boolean"
+      }
+    }
+  }
+  
