@@ -74,10 +74,11 @@ public abstract class BaseIcebergDestination extends BaseConnector implements De
     final Map<String, String> sparkConfMap = icebergCatalogConfig.sparkConfigMap();
     final Builder sparkBuilder = SparkSession.builder()
         .master("local")
-        .appName("Airbyte->Iceberg-" + System.currentTimeMillis());
+        .appName("Airbyte->Iceberg-" + System.currentTimeMillis())      
+        .config("spark.driver.host", "localhost") // Hôte pour le driver
+        .config("spark.testing.memory", "2147480000");
     sparkConfMap.forEach(sparkBuilder::config);
     SparkSession spark = sparkBuilder.getOrCreate();
-
     return new IcebergConsumer(spark, outputRecordCollector, catalog, icebergCatalogConfig);
   }
 
