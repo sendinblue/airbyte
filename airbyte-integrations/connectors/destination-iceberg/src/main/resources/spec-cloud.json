@@ -44,6 +44,51 @@
         "description": "Storage config of Iceberg.",
         "oneOf": [
           {
+            "title": "GCS",
+            "type": "object",
+            "description": "S3 object storage",
+            "required": [
+              "storage_type",
+              "hmac_access_key_id",
+              "hmac_secret_access_key",
+              "gcs_warehouse_uri"
+            ],
+            "properties": {
+              "storage_type": {
+                "title": "Storage Type",
+                "type": "string",
+                "default": "GCS",
+                "enum": ["GCS"],
+                "order": 0
+              },
+              "hmac_access_key_id": {
+                "type": "string",
+                "description": "The corresponding HMAC Access Key. Read more <a href=\"https://cloud.google.com/storage/docs/authentication/managing-hmackeys\">here</a>",
+                "title": "HMAC Access Key ID",
+                "airbyte_secret": true,
+                "examples": ["A012345678910EXAMPLE"],
+                "order": 0
+              },
+              "hmac_secret_access_key": {
+                "type": "string",
+                "description": "The corresponding HMAC secret ID. Read more <a href=\"https://cloud.google.com/storage/docs/authentication/managing-hmackeys\">here</a>",
+                "title": "Hmac Secret Key",
+                "airbyte_secret": true,
+                "examples": ["a012345678910ABCDEFGH/AbCdEfGhEXAMPLEKEY"],
+                "order": 1
+              },
+              "gcs_warehouse_uri": {
+                "title": "GCS Warehouse Uri for Iceberg",
+                "type": "string",
+                "description": "The Warehouse Uri for Iceberg",
+                "examples": [
+                  "gs://my-bucket/path/to/warehouse"
+                ],
+                "order": 2
+              }
+            }
+          },
+          {
             "title": "S3",
             "type": "object",
             "description": "S3 object storage",

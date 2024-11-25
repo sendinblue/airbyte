@@ -41,6 +41,9 @@ public class IcebergConstants {
   public static final String S3_BUCKET_REGION_CONFIG_KEY = "s3_bucket_region";
   public static final String S3_ENDPOINT_CONFIG_KEY = "s3_endpoint";
   public static final String S3_PATH_STYLE_ACCESS_CONFIG_KEY = "s3_path_style_access";
+  public static final String GCS_HMAC_ACCESS_KEY_ID_CONFIG_KEY = "hmac_access_key_id";
+  public static final String GCS_HMAC_SECRET_KEY_CONFIG_KEY = "hmac_secret_access_key";
+  public static final String GCS_WAREHOUSE_URI_CONFIG_KEY = "gcs_warehouse_uri";
   public static final String MANAGED_WAREHOUSE_NAME = "managed_warehouse_name";
 
   /**
