@@ -188,7 +188,7 @@
           {
             "title": "GCS",
             "type": "object",
-            "description": "S3 object storage",
+            "description": "GCS object storage",
             "required": [
               "storage_type",
               "hmac_access_key_id",
@@ -208,7 +208,6 @@
                 "description": "The corresponding HMAC Access Key. Read more <a href=\"https://cloud.google.com/storage/docs/authentication/managing-hmackeys\">here</a>",
                 "title": "HMAC Access Key ID",
                 "airbyte_secret": true,
-                "examples": ["A012345678910EXAMPLE"],
                 "order": 0
               },
               "hmac_secret_access_key": {
@@ -216,7 +215,6 @@
                 "description": "The corresponding HMAC secret ID. Read more <a href=\"https://cloud.google.com/storage/docs/authentication/managing-hmackeys\">here</a>",
                 "title": "Hmac Secret Key",
                 "airbyte_secret": true,
-                "examples": ["a012345678910ABCDEFGH/AbCdEfGhEXAMPLEKEY"],
                 "order": 1
               },
               "gcs_warehouse_uri": {
