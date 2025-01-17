@@ -29,6 +29,7 @@ from .streams import (
     Segments,
     Tags,
     Unsubscribes,
+    DomainPerformances,
 )
 
 
@@ -131,11 +132,12 @@ class SourceMailchimp(AbstractSource):
         start_date = config.get("start_date")
 
         lists = Lists(authenticator=authenticator, start_date=start_date)
+        campaigns = Campaigns(authenticator=authenticator, start_date=start_date)
         interest_categories = InterestCategories(authenticator=authenticator, parent=lists)
 
         return [
             Automations(authenticator=authenticator, start_date=start_date),
-            Campaigns(authenticator=authenticator, start_date=start_date),
+            campaigns,
             EmailActivity(authenticator=authenticator, start_date=start_date, campaign_id=campaign_id),
             interest_categories,
             Interests(authenticator=authenticator, parent=interest_categories),
@@ -146,4 +148,5 @@ class SourceMailchimp(AbstractSource):
             Segments(authenticator=authenticator, start_date=start_date),
             Tags(authenticator=authenticator, parent=lists),
             Unsubscribes(authenticator=authenticator, start_date=start_date, campaign_id=campaign_id),
+            DomainPerformances(authenticator=authenticator, parent=campaigns),
         ]

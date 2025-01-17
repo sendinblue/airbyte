@@ -162,6 +162,17 @@
       "cursor_field": ["timestamp"],
       "primary_key": [["campaign_id"], ["email_id"], ["timestamp"]],
       "destination_sync_mode": "append"
+    },
+    {
+      "stream": {
+        "name": "domain_performances",
+        "json_schema": {},
+        "supported_sync_modes": ["full_refresh"],
+        "source_defined_primary_key": [["id"]]
+      },
+      "sync_mode": "full_refresh",
+      "primary_key": [["id"]],
+      "destination_sync_mode": "append"
     }
   ]
 }

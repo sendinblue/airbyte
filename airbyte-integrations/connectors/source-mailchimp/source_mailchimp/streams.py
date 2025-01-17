@@ -516,3 +516,22 @@ class Unsubscribes(IncrementalMailChimpStream):
         updated_cursor_value = max(current_cursor_value, latest_cursor_value)
         current_stream_state[campaign_id] = {self.cursor_field: updated_cursor_value}
         return current_stream_state
+
+
+class DomainPerformances(MailChimpStream, HttpSubStream):
+    data_field = "domains"
+    primary_key = ["campaign_id", "domain"]
+
+    def path(self, stream_slice: Mapping[str, Any] = None, **kwargs) -> str:
+        campaign_id = stream_slice.get("parent").get("id")
+        return f"reports/{campaign_id}/domain-performance"
+    
+    def parse_response(self, response: requests.Response, stream_slice, **kwargs) -> Iterable[Mapping]:
+        """
+        Tags do not reference parent_ids, so we need to add the list_id to each record.
+        """
+        response = super().parse_response(response, **kwargs)
+
+        for record in response:
+            record["campaign_id"] = stream_slice.get("parent").get("id")
+            yield record
