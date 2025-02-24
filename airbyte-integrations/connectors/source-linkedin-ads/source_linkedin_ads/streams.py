@@ -17,7 +17,7 @@ from .utils import get_parent_stream_values, transform_data
 
 logger = logging.getLogger("airbyte")
 
-LINKEDIN_VERSION_API = "202404"
+LINKEDIN_VERSION_API = "202501"
 
 
 class LinkedinAdsStream(HttpStream, ABC):
@@ -446,7 +446,7 @@ class Leads(OffsetPaginationMixin, LinkedInAdsStreamSlicing):
         self, stream_state: Mapping[str, Any], stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
     ) -> Mapping[str, Any]:
         headers = super().request_headers(stream_state, stream_slice, next_page_token)
-        headers.update({"X-Restli-Protocol-Version": "2.0.0", "Linkedin-version": "202401"})
+        headers.update({"X-Restli-Protocol-Version": "2.0.0", "Linkedin-version": LINKEDIN_VERSION_API})
         return headers
 
     def request_params(
@@ -481,7 +481,7 @@ class Forms(OffsetPaginationMixin, LinkedInAdsStreamSlicing):
         self, stream_state: Mapping[str, Any], stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None
     ) -> Mapping[str, Any]:
         headers = super().request_headers(stream_state, stream_slice, next_page_token)
-        headers.update({"X-Restli-Protocol-Version": "2.0.0", "Linkedin-version": "202401"})
+        headers.update({"X-Restli-Protocol-Version": "2.0.0", "Linkedin-version": LINKEDIN_VERSION_API})
         return headers
 
     def request_params(
