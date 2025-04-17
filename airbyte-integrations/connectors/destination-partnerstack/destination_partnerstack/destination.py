@@ -25,7 +25,14 @@ class DestinationPartnerstack(Destination):
             if message.type == Type.STATE:
                 yield message
             elif message.type == Type.RECORD:
-                response = client.write(message.record.data)
+                data = message.record.data
+                if client.method == 'PATCH':
+                    if client.key not in data:
+                        raise Exception(f"{client.key} not found in record: {data}")
+                    else:
+                        response = client.update(client.key, data)
+                else:
+                    response = client.write(data)
                 if response.status_code != 200:
                     logger.error({"record": message.record.data, "error": response.json()})
             else:

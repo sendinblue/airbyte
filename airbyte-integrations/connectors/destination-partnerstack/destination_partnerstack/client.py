@@ -4,13 +4,15 @@ from typing import Any, Mapping, List
 
 
 class PartnerStackClient:
-    def __init__(self, public_key: str, private_key: str, endpoint: str) -> None:
+    def __init__(self, public_key: str, private_key: str, pobject: str) -> None:
         self.public_key = public_key
         self.private_key = private_key
-        self.endpoint = endpoint
+        self.endpoint = pobject["endpoint"]
+        self.method = pobject["method"]
+        self.key = pobject.get('key', None)
 
     def _get_base_url(self) -> str:
-        return f"https://api.partnerstack.com/api/v2/{self.endpoint}"
+        return f"https://api.partnerstack.com/api/v2{self.endpoint}"
 
     def encode_base64(self, msg: str) -> str:
         message_bytes = msg.encode("ascii")
@@ -23,15 +25,17 @@ class PartnerStackClient:
         return {"authorization": f"Basic {auth_encode}"}
 
     def write(self, request_body: List[Mapping]):
-        return self._request(http_method="POST", data=request_body)
+        return self._request(http_method=self.method, data=request_body)
+
+    def update(self, key: str, request_body: List[Mapping]):
+        url = self._get_base_url() + f"/{request_body[key]}"
+        request_body.pop(key, None)
+        return self._request(http_method=self.method, url=url, data=request_body)
 
     def list(self):
-        url = self._get_base_url()
-        headers = headers = {"accept": "application/json", **self._get_auth_headers()}
-        response = requests.request(method="GET", url=url, headers=headers)
-        return response
+        return self._request(http_method="GET")
 
-    def _request(self, http_method: str, data: List[Mapping] = None) -> requests.Response:
+    def _request(self, http_method: str, url: str = None, data: List[Mapping] = None, ) -> requests.Response:
         url = self._get_base_url()
         headers = {"accept": "application/json", "content-type": "application/json", **self._get_auth_headers()}
         response = requests.request(method=http_method, url=url, headers=headers, json=data)
