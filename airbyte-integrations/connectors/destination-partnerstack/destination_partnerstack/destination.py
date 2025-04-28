@@ -1,19 +1,15 @@
 #
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2025 Airbyte, Inc., all rights reserved.
 #
 
+import logging
 
 from typing import Any, Iterable, Mapping
 
-from airbyte_cdk import AirbyteLogger
 from airbyte_cdk.destinations import Destination
-from airbyte_cdk.models import AirbyteConnectionStatus, AirbyteMessage, ConfiguredAirbyteCatalog, Status, Type
-
-from logging import getLogger
+from airbyte_cdk.models import AirbyteConnectionStatus, AirbyteMessage, ConfiguredAirbyteCatalog, Status
 
 from destination_partnerstack.client import PartnerStackClient
-
-logger = getLogger("airbyte")
 
 
 class DestinationPartnerstack(Destination):
@@ -38,7 +34,7 @@ class DestinationPartnerstack(Destination):
             else:
                 continue
 
-    def check(self, logger: AirbyteLogger, config: Mapping[str, Any]) -> AirbyteConnectionStatus:
+    def check(self, logger: logging.Logger, config: Mapping[str, Any]) -> AirbyteConnectionStatus:
         try:
             client = PartnerStackClient(**config)
             response = client.list()
