@@ -1,0 +1,93 @@
+version: 5.7.5
+
+type: DeclarativeSource
+
+check:
+  type: CheckStream
+  stream_names:
+    - plan
+
+definitions:
+  streams:
+    plan:
+      type: DeclarativeStream
+      name: plan
+      retriever:
+        type: SimpleRetriever
+        requester:
+          $ref: "#/definitions/base_requester"
+          path: organization/{{ config['organization_id'] }}/plan
+          http_method: GET
+        record_selector:
+          type: RecordSelector
+          extractor:
+            type: DpathExtractor
+            field_path: []
+      transformations:
+        - type: AddFields
+          fields:
+            - path:
+                - organization_id
+              value: "{{ config['organization_id'] }}"
+      schema_loader:
+        type: InlineSchemaLoader
+        schema:
+          $ref: "#/schemas/plan"
+  base_requester:
+    type: HttpRequester
+    url_base: https://plan-manager-production.51b.tech/
+
+streams:
+  - $ref: "#/definitions/streams/plan"
+
+spec:
+  type: Spec
+  connection_specification:
+    type: object
+    $schema: http://json-schema.org/draft-07/schema#
+    required:
+      - organization_id
+    properties:
+      organization_id:
+        type: string
+        title: organization ID
+        order: 0
+    additionalProperties: true
+
+metadata:
+  autoImportSchema:
+    plan: true
+  testedStreams:
+    plan:
+      streamHash: null
+  assist: {}
+
+schemas:
+  plan:
+    type: object
+    $schema: http://json-schema.org/draft-07/schema#
+    additionalProperties: true
+    properties:
+      organization_id:
+        type:
+          - string
+      email:
+        type:
+          - object
+          - "null"
+      chat:
+        type:
+          - object
+          - "null"
+      crm:
+        type:
+          - object
+          - "null"
+      phone:
+        type:
+          - object
+          - "null"
+      config:
+        type:
+          - object
+          - "null"
