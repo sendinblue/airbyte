@@ -34,6 +34,6 @@ Example : *to create transactions -> set `transactions` as endpoint*
 
 | Version | Date       | Pull Request                                           | Subject                         |
 | :------ | :--------- | :----------------------------------------------------- | :------------------------------ |
-| 0.2.0   | 2025-04-24 | [XXXX](https://github.com/airbytehq/airbyte/pull/XXXX) | Add Update Partnerstack API      |
+| 0.2.2   | 2025-04-29 | [XXXX](https://github.com/airbytehq/airbyte/pull/XXXX) | Add Update Partnerstack API with PATCH method       |
 | 0.1.0   | 2023-07-21 | [XXXX](https://github.com/airbytehq/airbyte/pull/XXXX) | 🎉 New Destination: Partnerstack |
 

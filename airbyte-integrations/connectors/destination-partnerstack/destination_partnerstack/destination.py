@@ -2,14 +2,15 @@
 # Copyright (c) 2025 Airbyte, Inc., all rights reserved.
 #
 
-import logging
-
+from logging import Logger, getLogger
 from typing import Any, Iterable, Mapping
 
 from airbyte_cdk.destinations import Destination
-from airbyte_cdk.models import AirbyteConnectionStatus, AirbyteMessage, ConfiguredAirbyteCatalog, Status
+from airbyte_cdk.models import AirbyteConnectionStatus, AirbyteMessage, ConfiguredAirbyteCatalog, Status, Type
 
 from destination_partnerstack.client import PartnerStackClient
+
+logger = getLogger("airbyte")
 
 
 class DestinationPartnerstack(Destination):
@@ -29,12 +30,12 @@ class DestinationPartnerstack(Destination):
                         response = client.update(client.key, data)
                 else:
                     response = client.write(data)
-                if response.status_code != 200:
+                if response.status_code not in [200, 202]:
                     logger.error({"record": message.record.data, "error": response.json()})
             else:
                 continue
 
-    def check(self, logger: logging.Logger, config: Mapping[str, Any]) -> AirbyteConnectionStatus:
+    def check(self, logger: Logger, config: Mapping[str, Any]) -> AirbyteConnectionStatus:
         try:
             client = PartnerStackClient(**config)
             response = client.list()
