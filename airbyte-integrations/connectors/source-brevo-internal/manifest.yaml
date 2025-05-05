@@ -1,4 +1,4 @@
-version: 5.7.5
+version: 6.33.4
 
 type: DeclarativeSource
 
@@ -23,16 +23,16 @@ definitions:
           extractor:
             type: DpathExtractor
             field_path: []
+      schema_loader:
+        type: InlineSchemaLoader
+        schema:
+          $ref: "#/schemas/plan"
       transformations:
         - type: AddFields
           fields:
             - path:
                 - organization_id
               value: "{{ config['organization_id'] }}"
-      schema_loader:
-        type: InlineSchemaLoader
-        schema:
-          $ref: "#/schemas/plan"
   base_requester:
     type: HttpRequester
     url_base: https://plan-manager-production.51b.tech/
@@ -50,44 +50,357 @@ spec:
     properties:
       organization_id:
         type: string
-        title: organization ID
         order: 0
+        title: organization ID
     additionalProperties: true
 
 metadata:
-  autoImportSchema:
-    plan: true
+  assist: {}
   testedStreams:
     plan:
-      streamHash: null
-  assist: {}
+      hasRecords: true
+      streamHash: 3bf58a5bd95339af1168e63e47347d49cdf05369
+      hasResponse: true
+      primaryKeysAreUnique: true
+      primaryKeysArePresent: true
+      responsesAreSuccessful: true
+  autoImportSchema:
+    plan: true
 
 schemas:
   plan:
     type: object
-    $schema: http://json-schema.org/draft-07/schema#
-    additionalProperties: true
+    $schema: http://json-schema.org/schema#
     properties:
-      organization_id:
-        type:
-          - string
-      email:
-        type:
-          - object
-          - "null"
-      chat:
-        type:
-          - object
-          - "null"
       crm:
         type:
           - object
           - "null"
+        properties:
+          type:
+            type:
+              - string
+              - "null"
+          name:
+            type:
+              - string
+              - "null"
+          end_at:
+            type:
+              - string
+              - "null"
+          status:
+            type:
+              - string
+              - "null"
+          plan_id:
+            type:
+              - string
+              - "null"
+          start_at:
+            type:
+              - string
+              - "null"
+          master_id:
+            type:
+              - string
+              - "null"
+          plan_amount:
+            type:
+              - string
+              - "null"
+          plan_period:
+            type:
+              - string
+              - "null"
+          plan_vertical:
+            type:
+              - string
+              - "null"
+          addon_features:
+            type:
+              - object
+              - "null"
+            properties:
+              crm_deal:
+                type:
+                  - object
+                  - "null"
+                properties:
+                  used:
+                    type:
+                      - string
+                      - "null"
+                  enabled:
+                    type:
+                      - string
+                      - "null"
+                  max_limit:
+                    type:
+                      - string
+                      - "null"
+              crm_pipeline:
+                type:
+                  - object
+                  - "null"
+                properties:
+                  used:
+                    type:
+                      - string
+                      - "null"
+                  enabled:
+                    type:
+                      - string
+                      - "null"
+                  max_limit:
+                    type:
+                      - string
+                      - "null"
+          next_renewal_at:
+            type:
+              - string
+              - "null"
+          plan_cf_category:
+            type:
+              - string
+              - "null"
+          plan_period_unit:
+            type:
+              - string
+              - "null"
+      chat:
+        type:
+          - object
+          - "null"
+        properties:
+          type:
+            type:
+              - string
+              - "null"
+          name:
+            type:
+              - string
+              - "null"
+          end_at:
+            type:
+              - string
+              - "null"
+          status:
+            type:
+              - string
+              - "null"
+          plan_id:
+            type:
+              - string
+              - "null"
+          start_at:
+            type:
+              - string
+              - "null"
+          master_id:
+            type:
+              - string
+              - "null"
+          plan_amount:
+            type:
+              - string
+              - "null"
+          plan_period:
+            type:
+              - string
+              - "null"
+          plan_vertical:
+            type:
+              - string
+              - "null"
+          next_renewal_at:
+            type:
+              - string
+              - "null"
+          plan_cf_category:
+            type:
+              - string
+              - "null"
+          plan_period_unit:
+            type:
+              - string
+              - "null"
+      email:
+        type:
+          - object
+          - "null"
+        properties:
+          type:
+            type:
+              - string
+              - "null"
+          name:
+            type:
+              - string
+              - "null"
+          end_at:
+            type:
+              - string
+              - "null"
+          status:
+            type:
+              - string
+              - "null"
+          plan_id:
+            type:
+              - string
+              - "null"
+          start_at:
+            type:
+              - string
+              - "null"
+          master_id:
+            type:
+              - string
+              - "null"
+          plan_amount:
+            type:
+              - string
+              - "null"
+          plan_period:
+            type:
+              - string
+              - "null"
+          plan_vertical:
+            type:
+              - string
+              - "null"
+          addon_features:
+            type:
+              - object
+              - "null"
+            properties:
+              sms:
+                type:
+                  - object
+                  - "null"
+                properties:
+                  used:
+                    type:
+                      - string
+                      - "null"
+                  end_at:
+                    type:
+                      - string
+                      - "null"
+                  enabled:
+                    type:
+                      - string
+                      - "null"
+                  max_limit:
+                    type:
+                      - string
+                      - "null"
+              users:
+                type:
+                  - object
+                  - "null"
+                properties:
+                  used:
+                    type:
+                      - string
+                      - "null"
+                  enabled:
+                    type:
+                      - string
+                      - "null"
+                  max_limit:
+                    type:
+                      - string
+                      - "null"
+              email_credits:
+                type:
+                  - object
+                  - "null"
+                properties:
+                  used:
+                    type:
+                      - string
+                      - "null"
+                  enabled:
+                    type:
+                      - string
+                      - "null"
+                  max_limit:
+                    type:
+                      - string
+                      - "null"
+          next_renewal_at:
+            type:
+              - string
+              - "null"
+          plan_cf_category:
+            type:
+              - string
+              - "null"
+          plan_period_unit:
+            type:
+              - string
+              - "null"
       phone:
         type:
           - object
           - "null"
-      config:
+        properties:
+          type:
+            type:
+              - string
+              - "null"
+          name:
+            type:
+              - string
+              - "null"
+          end_at:
+            type:
+              - string
+              - "null"
+          status:
+            type:
+              - string
+              - "null"
+          plan_id:
+            type:
+              - string
+              - "null"
+          start_at:
+            type:
+              - string
+              - "null"
+          master_id:
+            type:
+              - string
+              - "null"
+          plan_amount:
+            type:
+              - string
+              - "null"
+          plan_period:
+            type:
+              - string
+              - "null"
+          plan_vertical:
+            type:
+              - string
+              - "null"
+          next_renewal_at:
+            type:
+              - string
+              - "null"
+          plan_cf_category:
+            type:
+              - string
+              - "null"
+          plan_period_unit:
+            type:
+              - string
+              - "null"
+      organization_id:
         type:
-          - object
+          - number
           - "null"
+    additionalProperties: true
