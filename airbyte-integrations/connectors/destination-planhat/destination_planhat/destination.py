@@ -1,21 +1,24 @@
 #
-# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2025 Airbyte, Inc., all rights reserved.
 #
 
+from logging import Logger, getLogger
 
 from typing import Any, Iterable, Mapping
 
-from airbyte_cdk import AirbyteLogger
 from airbyte_cdk.destinations import Destination
 from airbyte_cdk.models import AirbyteConnectionStatus, AirbyteMessage, ConfiguredAirbyteCatalog, Status, Type
 
 from destination_planhat.client import PlanHatClient
+
+logger = getLogger("airbyte")
 
 
 class DestinationPlanhat(Destination):
     def write(
         self, config: Mapping[str, Any], configured_catalog: ConfiguredAirbyteCatalog, input_messages: Iterable[AirbyteMessage]
     ) -> Iterable[AirbyteMessage]:
+
         client = PlanHatClient(**config)
 
         for message in input_messages:
@@ -29,7 +32,7 @@ class DestinationPlanhat(Destination):
         if len(client.write_buffer) != 0:
             client.flush()
 
-    def check(self, logger: AirbyteLogger, config: Mapping[str, Any]) -> AirbyteConnectionStatus:
+    def check(self, logger: Logger, config: Mapping[str, Any]) -> AirbyteConnectionStatus:
         try:
             client = PlanHatClient(**config)
             response = client.get_list()
