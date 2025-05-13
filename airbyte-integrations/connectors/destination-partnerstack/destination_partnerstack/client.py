@@ -1,6 +1,9 @@
 import base64
 import requests
 from typing import Any, Mapping, List
+from logging import getLogger
+
+logger = getLogger("airbyte")
 
 
 class PartnerStackClient:
@@ -9,7 +12,7 @@ class PartnerStackClient:
         self.private_key = private_key
         self.endpoint = pobject["endpoint"]
         self.method = pobject["method"]
-        self.key = pobject.get('key', None)
+        self.key = pobject.get("key", None)
 
     def _get_base_url(self) -> str:
         return f"https://api.partnerstack.com/api/v2{self.endpoint}"
@@ -29,14 +32,27 @@ class PartnerStackClient:
 
     def update(self, key: str, request_body: List[Mapping]):
         url = self._get_base_url() + f"/{request_body[key]}"
+        logger.info(url)
         request_body.pop(key, None)
         return self._request(http_method=self.method, url=url, data=request_body)
 
     def list(self):
         return self._request(http_method="GET")
 
-    def _request(self, http_method: str, url: str = None, data: List[Mapping] = None, ) -> requests.Response:
-        url = self._get_base_url()
-        headers = {"accept": "application/json", "content-type": "application/json", **self._get_auth_headers()}
-        response = requests.request(method=http_method, url=url, headers=headers, json=data)
+    def _request(
+        self,
+        http_method: str,
+        url: str = None,
+        data: List[Mapping] = None,
+    ) -> requests.Response:
+        if url is None:
+            url = self._get_base_url()
+        headers = {
+            "accept": "application/json",
+            "content-type": "application/json",
+            **self._get_auth_headers(),
+        }
+        response = requests.request(
+            method=http_method, url=url, headers=headers, json=data
+        )
         return response
