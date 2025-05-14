@@ -6,7 +6,13 @@ from logging import Logger, getLogger
 from typing import Any, Iterable, Mapping
 
 from airbyte_cdk.destinations import Destination
-from airbyte_cdk.models import AirbyteConnectionStatus, AirbyteMessage, ConfiguredAirbyteCatalog, Status, Type
+from airbyte_cdk.models import (
+    AirbyteConnectionStatus,
+    AirbyteMessage,
+    ConfiguredAirbyteCatalog,
+    Status,
+    Type,
+)
 
 from destination_partnerstack.client import PartnerStackClient
 
@@ -15,7 +21,10 @@ logger = getLogger("airbyte")
 
 class DestinationPartnerstack(Destination):
     def write(
-        self, config: Mapping[str, Any], configured_catalog: ConfiguredAirbyteCatalog, input_messages: Iterable[AirbyteMessage]
+        self,
+        config: Mapping[str, Any],
+        configured_catalog: ConfiguredAirbyteCatalog,
+        input_messages: Iterable[AirbyteMessage],
     ) -> Iterable[AirbyteMessage]:
         client = PartnerStackClient(**config)
         for message in input_messages:
@@ -23,7 +32,7 @@ class DestinationPartnerstack(Destination):
                 yield message
             elif message.type == Type.RECORD:
                 data = message.record.data
-                if client.method == 'PATCH':
+                if client.method == "PATCH":
                     if client.key not in data:
                         raise Exception(f"{client.key} not found in record: {data}")
                     else:
@@ -31,11 +40,15 @@ class DestinationPartnerstack(Destination):
                 else:
                     response = client.write(data)
                 if response.status_code not in [200, 202]:
-                    logger.error({"record": message.record.data, "error": response.json()})
+                    logger.error(
+                        {"record": message.record.data, "error": response.text}
+                    )
             else:
                 continue
 
-    def check(self, logger: Logger, config: Mapping[str, Any]) -> AirbyteConnectionStatus:
+    def check(
+        self, logger: Logger, config: Mapping[str, Any]
+    ) -> AirbyteConnectionStatus:
         try:
             client = PartnerStackClient(**config)
             response = client.list()
@@ -44,4 +57,6 @@ class DestinationPartnerstack(Destination):
             else:
                 return AirbyteConnectionStatus(status=Status.SUCCEEDED)
         except Exception as e:
-            return AirbyteConnectionStatus(status=Status.FAILED, message=f"An exception occurred: {repr(e)}")
+            return AirbyteConnectionStatus(
+                status=Status.FAILED, message=f"An exception occurred: {repr(e)}"
+            )
