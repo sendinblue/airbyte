@@ -41,9 +41,24 @@
       "destination_path": {
         "title": "Destination path",
         "type": "string",
-        "description": "Path to the directory where json files will be written.",
-        "examples": ["/json_data"],
+        "description": "Path to the directory where files will be written.",
+        "examples": ["/data"],
         "order": 4
+      },
+      "output_format": {
+        "title": "Output Format",
+        "type": "string",
+        "description": "Format of the output files.",
+        "enum": ["json", "csv"],
+        "default": "json",
+        "order": 5
+      },
+      "file_prefix": {
+        "title": "File Prefix",
+        "type": "string",
+        "description": "Optional prefix for output filenames. Leave empty for no prefix.",
+        "default": "airbyte_",
+        "order": 6
       }
     }
   }
