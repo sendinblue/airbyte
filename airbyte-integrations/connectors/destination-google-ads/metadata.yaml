@@ -12,7 +12,7 @@ data:
   connectorSubtype: database
   connectorType: destination
   definitionId: 07dc6177-8122-47c2-a351-a737fe5942f2
-  dockerImageTag: 0.2.0
+  dockerImageTag: 0.3.1
   dockerRepository: airbyte/destination-google-ads
   githubIssueLabel: destination-google-ads
   icon: google-ads.svg

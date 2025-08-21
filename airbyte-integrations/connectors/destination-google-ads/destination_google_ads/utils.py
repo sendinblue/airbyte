@@ -9,8 +9,7 @@ import re
 
 from datetime import datetime
 from logging import getLogger
-
-import pkg_resources
+from importlib.metadata import version
 
 LOGGER = getLogger("airbyte")
 
@@ -85,7 +84,7 @@ def send_usage_stats():
     Send anonymous usage data to singer.io
     """
     try:
-        version = pkg_resources.get_distribution("target-rest-api").version
+        version_str = version("target-rest-api")
         conn = http.client.HTTPConnection("collector.singer.io", timeout=10)
         conn.connect()
         params = {
@@ -93,7 +92,7 @@ def send_usage_stats():
             "aid": "singer",
             "se_ca": "target-rest-api",
             "se_ac": "open",
-            "se_la": version,
+            "se_la": version_str,
         }
         conn.request("GET", "/i?" + urllib.parse.urlencode(params))
         conn.getresponse()

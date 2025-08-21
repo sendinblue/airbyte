@@ -1,5 +1,5 @@
 [build-system]
-requires = [ "poetry-core>=1.0.0", "google-ads==23.0.0"]
+requires = [ "poetry-core>=1.0.0", "google-ads==27.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
@@ -17,7 +17,7 @@ packages = [ { include = "destination_google_ads" }, {include = "main.py" } ]
 [tool.poetry.dependencies]
 python = "^3.9,<3.12"
 airbyte-cdk = "^0"
-google-ads = "25.0.0"
+google-ads = "27.0.0"
 
 [tool.poetry.scripts]
 destination-google-ads = "destination_google_ads.run:run"
