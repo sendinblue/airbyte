@@ -102,8 +102,10 @@ def send_usage_stats():
 
 
 def datetime_to_ads_format(conversion_date):
-    conversion_datetime = datetime.strptime(conversion_date, "%Y-%m-%dT%H:%M:%S%z").strftime("%Y-%m-%d %H:%M:%S%z")
-
+    if conversion_date is not None:
+        conversion_datetime = datetime.strptime(conversion_date, "%Y-%m-%dT%H:%M:%S%z").strftime("%Y-%m-%d %H:%M:%S%z")
+    else:
+        conversion_datetime = None  # or set a default value
     timestamp_string = "{0}:{1}".format(
         conversion_datetime[:-2],
         conversion_datetime[-2:]
