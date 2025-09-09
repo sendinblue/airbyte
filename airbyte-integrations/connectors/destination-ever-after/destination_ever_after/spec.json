@@ -1,0 +1,20 @@
+{
+  "documentationUrl": "https://docs.airbyte.com/integrations/destinations/ever-after",
+  "supported_destination_sync_modes": [
+    "append"
+  ],
+  "supportsIncremental": true,
+  "connectionSpecification": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Destination Ever After",
+    "type": "object",
+    "required": ["api_key"],
+    "additionalProperties": false,
+    "properties": {
+      "api_key": {
+        "type": "string",
+        "description": "Your EverAfter API Key"
+      }
+    }
+  }
+}

@@ -1,0 +1,1 @@
+{"type": "RECORD", "record": {"stream": "accounts", "emitted_at": 1757420653000, "data": { "ea_test": "hello", "account_id": "xxxxxx"}}}
