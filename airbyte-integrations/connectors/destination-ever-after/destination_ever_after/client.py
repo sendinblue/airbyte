@@ -1,3 +1,4 @@
+from this import d
 from typing import Any, Mapping, List
 from logging import getLogger
 
@@ -6,9 +7,10 @@ import requests
 logger = getLogger("airbyte")
 
 class EverAfterClient():
-    def __init__(self, api_key: str) -> None:
+    def __init__(self, api_key: str, everafter_object: str) -> None:
         self.api_key = api_key
-        self.url = "https://production-server-eu.everafter.ai/api/"
+        self.everafter_object = everafter_object["value"]
+        self.url = "https://production-server-eu.everafter.ai/api/v1"
     
     def _request(self, endpoint: str, http_method: str = "PUT", data: List[Mapping] = None) -> requests.Response:
         url = self.url + endpoint
@@ -17,29 +19,59 @@ class EverAfterClient():
         return response
 
     def get_accounts_metadata(self) -> requests.Response:
-        return self._request("v1/accounts/metadata", "GET")
+        return self._request("/accounts/metadata", "GET")
 
     def update_accounts(self, data: Mapping) -> requests.Response:
         account_id, data_prepared = self.clean_payload(data)
-        response = self._request(f"v1/accounts/{account_id}", "PUT", data_prepared)
+        response = self._request(
+            endpoint=f"/accounts/{account_id}",
+            http_method="PUT", 
+            data=data_prepared
+        )
         if response.status_code == 404:
-            logger.warning(f"Account {account_id} not found")
+            logger.warning(f"Account {account_id}: {response.text}")
         elif response.status_code == 400:
-            raise Exception(f"Account {account_id} error: {response.text()}")
+            error_message = f"Account {account_id}: {response.text}"
+            logger.error(error_message)
+            raise Exception(error_message)
         else:
             return response
 
-    def clean_payload(self, data: Mapping) -> tuple[str, Mapping]:
-        """
-        Removes the 'account_id' field from data if it exists.
-        Raises an error if 'account_id' is not present.
-        """
-        if "account_id" not in data:
-            raise KeyError("Field 'account_id' is required but missing")
-        
-        # Extract account_id and create a copy without it
-        account_id = data["account_id"]
-        data_prepared = data.copy()
-        data_prepared.pop("account_id")
-        return account_id, data_prepared
+    def add_custom_object_records(self, data: Mapping) -> requests.Response:
+        custom_object_id, data_prepared = self.clean_payload(data)
 
+        response = self._request(
+            endpoint=f"/custom-objects/{custom_object_id}/records",
+            http_method="POST",
+            data=data_prepared
+        )
+        if response.status_code == 404:
+            logger.warning(f"Custom Objects {custom_object_id}: {response.text}")
+        elif response.status_code == 400:
+            error_message = f"Custom Objects {custom_object_id}: {response.text}"
+            logger.error(error_message)
+            raise Exception(error_message)
+        else:
+            return response
+        
+    def clean_payload(self, data: Mapping) -> tuple[str, Mapping]:
+        if self.everafter_object == "accounts":
+            key = "account_id"
+        else:
+            key = "custom_object_id"
+
+        if key not in data:
+            raise KeyError(f"Field '{str(key)}' is required but missing")
+
+        key_id = data[key]
+        data_prepared = data.copy()
+        data_prepared.pop(key)
+        return key_id, data_prepared
+
+    def main(self, data: Mapping) -> requests.Response:
+        if self.everafter_object == "accounts":
+            return self.update_accounts(data)
+        elif self.everafter_object == "custom-objects":
+            return self.add_custom_object_records(data)
+        else:
+            raise ValueError(f"Invalid everafter_object: {self.everafter_object}")

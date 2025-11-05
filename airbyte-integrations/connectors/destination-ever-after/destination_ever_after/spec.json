@@ -8,12 +8,39 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "title": "Destination Ever After",
     "type": "object",
-    "required": ["api_key"],
+    "required": ["api_key", "everafter_object"],
     "additionalProperties": false,
     "properties": {
       "api_key": {
         "type": "string",
         "description": "Your EverAfter API Key"
+      },
+      "everafter_object": {
+        "type": "object",
+        "oneOf": [
+          {
+            "title": "Accounts",
+            "additionalProperties": false,
+            "required": ["value"],
+            "properties": {
+                "value": {
+                    "type": "string",
+                    "const": "accounts"
+                }
+            }
+          },
+          {
+            "title": "CustomObject",
+            "additionalProperties": false,
+            "required": ["value"],
+            "properties": {
+                "value": {
+                    "type": "string",
+                    "const": "custom-objects"
+                }
+            }
+          }
+        ]
       }
     }
   }

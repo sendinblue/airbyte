@@ -20,7 +20,7 @@ class DestinationEverAfter(Destination):
         for message in input_messages:
             if message.type == Type.RECORD:
                 record = message.record
-                client.update_accounts(record.data)
+                client.main(record.data)
             elif message.type == Type.STATE:
                 yield message
             else:

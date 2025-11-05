@@ -1,1 +1,2 @@
-{"type": "RECORD", "record": {"stream": "accounts", "emitted_at": 1757420653000, "data": { "ea_test": "hello", "account_id": "xxxxxx"}}}
+// {"type": "RECORD", "record": {"stream": "accounts", "emitted_at": 1757420653000, "data": { "ea_test": "hello", "account_id": "6489c4db8ebb0f1ccc12f59c"}}}
+{"type": "RECORD", "record": {"stream": "objects", "emitted_at": 1757420653000, "data": { "data": { "test_cust_obj_#": "test_airbyte_2"}, "accountId": "6489c4db8ebb0f1ccc12f59c", "custom_object_id": "7570b952-c37b-4321-9b0e-8abf1ddb8de7"}}}
