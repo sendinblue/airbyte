@@ -51,9 +51,16 @@ class EverAfterClient():
             error_message = f"Custom Objects {custom_object_id}: {response.text}"
             logger.error(error_message)
             raise Exception(error_message)
-        else:
-            return response
         
+    def _remove_null_values(self, obj: Any) -> Any:
+        """Recursively remove all elements with null values."""
+        if isinstance(obj, dict):
+            return {k: self._remove_null_values(v) for k, v in obj.items() if v is not None}
+        elif isinstance(obj, list):
+            return [self._remove_null_values(item) for item in obj if item is not None]
+        else:
+            return obj
+    
     def clean_payload(self, data: Mapping) -> tuple[str, Mapping]:
         if self.everafter_object == "accounts":
             key = "account_id"
@@ -66,6 +73,9 @@ class EverAfterClient():
         key_id = data[key]
         data_prepared = data.copy()
         data_prepared.pop(key)
+        
+        data_prepared = self._remove_null_values(data_prepared)
+        
         return key_id, data_prepared
 
     def main(self, data: Mapping) -> requests.Response:
