@@ -1,6 +1,7 @@
 from this import d
 from typing import Any, Mapping, List
 from logging import getLogger
+import time
 
 import requests
 
@@ -15,8 +16,16 @@ class EverAfterClient():
     def _request(self, endpoint: str, http_method: str = "PUT", data: List[Mapping] = None) -> requests.Response:
         url = self.url + endpoint
         headers = {"Content-Type": "application/json", "apiKey": self.api_key}
-        response = requests.request(method=http_method, url=url, headers=headers, json=data)
-        return response
+        
+        while True:
+            response = requests.request(method=http_method, url=url, headers=headers, json=data)
+            
+            if response.status_code == 429:
+                logger.warning(f"Rate limit hit (429) for {endpoint}. Waiting 60 seconds before retrying...")
+                time.sleep(60)
+                continue
+            
+            return response
 
     def get_accounts_metadata(self) -> requests.Response:
         return self._request("/accounts/metadata", "GET")
@@ -30,7 +39,7 @@ class EverAfterClient():
         )
         if response.status_code == 404:
             logger.warning(f"Account {account_id}: {response.text}")
-        elif response.status_code == 400:
+        elif response.status_code == 400 or response.status_code == 500:
             error_message = f"Account {account_id}: {response.text}"
             logger.error(error_message)
             raise Exception(error_message)
@@ -47,10 +56,12 @@ class EverAfterClient():
         )
         if response.status_code == 404:
             logger.warning(f"Custom Objects {custom_object_id}: {response.text}")
-        elif response.status_code == 400:
+        elif response.status_code == 400 or response.status_code == 500:
             error_message = f"Custom Objects {custom_object_id}: {response.text}"
             logger.error(error_message)
             raise Exception(error_message)
+        else:
+            return response
         
     def _remove_null_values(self, obj: Any) -> Any:
         """Recursively remove all elements with null values."""
