@@ -13,7 +13,8 @@
     "properties": {
       "api_key": {
         "type": "string",
-        "description": "Your EverAfter API Key"
+        "description": "Your EverAfter API Key",
+        "airbyte_secret": "true"
       },
       "everafter_object": {
         "type": "object",
