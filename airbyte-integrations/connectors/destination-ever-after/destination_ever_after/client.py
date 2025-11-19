@@ -43,6 +43,10 @@ class EverAfterClient():
             error_message = f"Account {account_id}: {response.text}"
             logger.error(error_message)
             raise Exception(error_message)
+        elif response.status_code == 429:
+            logger.warning(f"Rate limit hit (429) for account {account_id}. Waiting 60 seconds before retrying...")
+            time.sleep(60)
+            return self.update_accounts(data)
         else:
             return response
 
@@ -60,6 +64,10 @@ class EverAfterClient():
             error_message = f"Custom Objects {custom_object_id}: {response.text}"
             logger.error(error_message)
             raise Exception(error_message)
+        elif response.status_code == 429:
+            logger.warning(f"Rate limit hit (429) for custom object {custom_object_id}. Waiting 60 seconds before retrying...")
+            time.sleep(60)
+            return self.add_custom_object_records(data)
         else:
             return response
         
