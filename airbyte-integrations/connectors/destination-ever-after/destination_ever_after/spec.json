@@ -33,11 +33,15 @@
           {
             "title": "CustomObject",
             "additionalProperties": false,
-            "required": ["value"],
+            "required": ["value", "custom_object_id"],
             "properties": {
                 "value": {
                     "type": "string",
                     "const": "custom-objects"
+                },
+                "custom_object_id": {
+                    "type": "string",
+                    "description": "The ID of the custom object to write to"
                 }
             }
           }

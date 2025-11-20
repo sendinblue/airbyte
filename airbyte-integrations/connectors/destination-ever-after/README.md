@@ -34,7 +34,7 @@ and place them into `secrets/config.json`.
 ```
 poetry run destination-ever-after spec
 poetry run destination-ever-after check --config secrets/config.json
-poetry run destination-ever-after write --config secrets/config.json --catalog sample_files/configured_catalog.json
+poetry run destination-ever-after write --config secrets/config.json --catalog integration_tests/configured_catalog.json
 cat integration_tests/messages.jsonl | poetry run destination-ever-after write --config secrets/config.json --catalog integration_tests/configured_catalog.json
 ```
 

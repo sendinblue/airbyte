@@ -25,6 +25,10 @@ class DestinationEverAfter(Destination):
                 yield message
             else:
                 continue
+        
+        if len(client.write_buffer) != 0 and client.everafter_object == "custom-objects":
+            client.add_custom_object_records()
+
 
     def check(self, logger: Logger, config: Mapping[str, Any]) -> AirbyteConnectionStatus:
         try:
