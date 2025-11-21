@@ -14,7 +14,7 @@ class EverAfterClient():
         self.url = "https://production-server-eu.everafter.ai/api/v1"
         self.custom_object_id = everafter_object.get("custom_object_id", None)
         self.write_buffer = []
-        self.batch_size = 1
+        self.batch_size = 100
 
     def _request(self, endpoint: str, http_method: str = "PUT", data: List[Mapping] = None) -> requests.Response:
         url = self.url + endpoint
