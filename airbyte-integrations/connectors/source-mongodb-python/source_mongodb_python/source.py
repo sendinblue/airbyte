@@ -107,18 +107,44 @@ class SourceMongodbPython(Source):
             schema = {"properties": {"data": {"type": "object"}}}
         else:
             schema = {"properties": {}}
-            cursor = collection.find({}).limit(10)  # Adjust the limit as necessary
+            cursor = collection.find({}).limit(10)
             for doc in cursor:
                 for key in doc.keys():
                     schema["properties"][key] = {"type": "string"}
         schema["properties"]["_sdc_deleted_at"] = {"type": "string"}
-        schema["properties"]["_collection_last_update"] = {"type": "string"}
         return schema
+
+    def _get_incremental_cursor_field(self, configured_stream):
+        """Get the cursor field for incremental sync without oplog based on stream configuration."""
+        if hasattr(configured_stream, 'cursor_field') and configured_stream.cursor_field:
+            cursor_field = configured_stream.cursor_field[0] if isinstance(configured_stream.cursor_field, list) else configured_stream.cursor_field
+            # Log which cursor field is being used
+            return cursor_field
+        
+        # Default fallback - try to find a better field than _id
+        return "updated_at"
+
+    def _parse_cursor_value(self, cursor_value, cursor_field):
+        """Parse cursor value based on field type."""
+        if cursor_field == "_id":
+            return ObjectId(cursor_value) if isinstance(cursor_value, str) else cursor_value
+        elif isinstance(cursor_value, str):
+            try:
+                # Try to parse as datetime
+                return datetime.strptime(cursor_value, "%Y-%m-%dT%H:%M:%S.%fZ")
+            except ValueError:
+                try:
+                    return datetime.strptime(cursor_value, "%Y-%m-%dT%H:%M:%S")
+                except ValueError:
+                    return cursor_value
+        return cursor_value
 
     def read(self, logger, config, catalog, state):
         client = self.get_client(logger, config)
         db = client[config["database"]]
-        oplog = client["local"]["oplog.rs"]
+        
+        has_replica_set = config.get("replica_set") is not None
+        oplog = client["local"]["oplog.rs"] if has_replica_set else None
 
         for configured_stream in catalog.streams:
             sync_mode = configured_stream.sync_mode
@@ -137,8 +163,8 @@ class SourceMongodbPython(Source):
 
             query = {}
 
-            if sync_mode == SyncMode.incremental and state_collection_last_update > Timestamp(0, 0):
-
+            if sync_mode == SyncMode.incremental and has_replica_set and state_collection_last_update > Timestamp(0, 0):
+                # Oplog-based incremental sync (replica set required)
                 start_date = (
                     Timestamp(int(datetime.strptime(config["start_date"], "%Y-%m-%dT%H:%M:%S").timestamp()), 0)
                     if config.get("start_date", None)
@@ -210,6 +236,69 @@ class SourceMongodbPython(Source):
                     logger.info(
                         f"{len(ids_list[i : i + BATCH_SIZE ])} out of {len(ids_list)} record retreived from '{collection_name}' stream"
                     )
+
+            elif sync_mode == SyncMode.incremental and not has_replica_set:
+                cursor_field = self._get_incremental_cursor_field(configured_stream)
+                last_cursor_value = None
+                
+                for state_message in state:
+                    if state_message.stream.stream_descriptor.name == collection_name:
+                        state_data = state_message.stream.stream_state
+                        if hasattr(state_data, cursor_field):
+                            last_cursor_value = getattr(state_data, cursor_field)
+                        elif hasattr(state_data, '__dict__') and cursor_field in state_data.__dict__:
+                            last_cursor_value = state_data.__dict__[cursor_field]
+                        break
+                
+                if last_cursor_value:
+                    parsed_cursor = self._parse_cursor_value(last_cursor_value, cursor_field)
+                    query[cursor_field] = {"$gt": parsed_cursor}
+                elif config.get("start_date"):
+                    if cursor_field == "_id":
+                        start_timestamp = int(datetime.strptime(config["start_date"], "%Y-%m-%dT%H:%M:%S").timestamp())
+                        start_objectid = ObjectId.from_datetime(datetime.fromtimestamp(start_timestamp))
+                        query[cursor_field] = {"$gt": start_objectid}
+                    else:
+                        query[cursor_field] = {"$gt": datetime.strptime(config["start_date"], "%Y-%m-%dT%H:%M:%S")}
+                
+                logger.info(f"Incremental sync for '{collection_name}' using cursor field '{cursor_field}' with query: {query}")
+                
+                cursor = collection.find(query).sort(cursor_field, 1)
+                max_cursor_value = None
+                
+                for doc in cursor:
+                    doc = JsonEncoder().encode(doc)
+                    if config.get("schemaless"):
+                        doc = {"data": doc}
+                    
+                    cursor_value = doc.get(cursor_field) if not config.get("schemaless") else doc["data"].get(cursor_field)
+                    if cursor_value:
+                        if cursor_field == "_id":
+                            cursor_value = str(cursor_value)
+                        elif isinstance(cursor_value, datetime):
+                            cursor_value = cursor_value.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+                        max_cursor_value = cursor_value
+                    
+                    record = AirbyteRecordMessage(
+                        stream=collection_name,
+                        data=doc,
+                        emitted_at=int(datetime.now().timestamp()) * 1000,
+                    )
+                    yield AirbyteMessage(type=Type.RECORD, record=record)
+                
+                if max_cursor_value and sync_mode == SyncMode.incremental:
+                    stream_state = AirbyteStateMessage(
+                        type=AirbyteStateType.STREAM,
+                        stream=AirbyteStreamState(
+                            stream_descriptor=StreamDescriptor(name=collection_name),
+                            stream_state=AirbyteStateBlob.parse_obj({
+                                cursor_field: max_cursor_value
+                            }),
+                        ),
+                    )
+                    yield AirbyteMessage(type=Type.STATE, state=stream_state)
+                
+                continue 
 
             else:
 
