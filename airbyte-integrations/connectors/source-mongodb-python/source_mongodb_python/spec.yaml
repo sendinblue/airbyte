@@ -13,7 +13,7 @@ connectionSpecification:
     port:
       type: string
       description: (Optional) The port number for database connections.
-    username:
+    user:
       type: string
       description: (Optional) The login username for database access.
     password:
