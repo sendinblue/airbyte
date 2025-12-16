@@ -118,10 +118,8 @@ class SourceMongodbPython(Source):
         """Get the cursor field for incremental sync without oplog based on stream configuration."""
         if hasattr(configured_stream, 'cursor_field') and configured_stream.cursor_field:
             cursor_field = configured_stream.cursor_field[0] if isinstance(configured_stream.cursor_field, list) else configured_stream.cursor_field
-            # Log which cursor field is being used
             return cursor_field
         
-        # Default fallback - try to find a better field than _id
         return "updated_at"
 
     def _parse_cursor_value(self, cursor_value, cursor_field):
@@ -130,7 +128,6 @@ class SourceMongodbPython(Source):
             return ObjectId(cursor_value) if isinstance(cursor_value, str) else cursor_value
         elif isinstance(cursor_value, str):
             try:
-                # Try to parse as datetime
                 return datetime.strptime(cursor_value, "%Y-%m-%dT%H:%M:%S.%fZ")
             except ValueError:
                 try:
@@ -142,8 +139,8 @@ class SourceMongodbPython(Source):
     def read(self, logger, config, catalog, state):
         client = self.get_client(logger, config)
         db = client[config["database"]]
-        
         has_replica_set = config.get("replica_set") is not None
+        print("Has replica set:", has_replica_set)
         oplog = client["local"]["oplog.rs"] if has_replica_set else None
 
         for configured_stream in catalog.streams:
@@ -153,17 +150,27 @@ class SourceMongodbPython(Source):
             collection = db[collection_name]
             _collection_last_update = Timestamp(int(datetime.now().timestamp()), 0)
             state_collection_last_update = Timestamp(0, 0)
+            state_cursor_value = None
+            
             for state_message in state:
                 if (
                     state_message.stream.stream_descriptor.name == collection_name
                     and state_message.stream.stream_state._collection_last_update
                 ):
-                    timestamp_value, increment = map(int, re.findall(r"\d+", state_message.stream.stream_state._collection_last_update))
-                    state_collection_last_update = Timestamp(timestamp_value, increment)
+                    if has_replica_set:
+                        # Pour replica set, _collection_last_update est un timestamp
+                        timestamp_matches = re.findall(r"\d+", state_message.stream.stream_state._collection_last_update)
+                        if len(timestamp_matches) >= 2:
+                            timestamp_value, increment = map(int, timestamp_matches[:2])
+                            state_collection_last_update = Timestamp(timestamp_value, increment)
+                    else:
+                        # Pour non-replica set, _collection_last_update est la valeur du cursor
+                        state_cursor_value = state_message.stream.stream_state._collection_last_update
 
             query = {}
 
             if sync_mode == SyncMode.incremental and has_replica_set and state_collection_last_update > Timestamp(0, 0):
+                print("Using oplog for incremental sync")
                 # Oplog-based incremental sync (replica set required)
                 start_date = (
                     Timestamp(int(datetime.strptime(config["start_date"], "%Y-%m-%dT%H:%M:%S").timestamp()), 0)
@@ -238,17 +245,12 @@ class SourceMongodbPython(Source):
                     )
 
             elif sync_mode == SyncMode.incremental and not has_replica_set:
+                print("Using field-based incremental sync")
                 cursor_field = self._get_incremental_cursor_field(configured_stream)
                 last_cursor_value = None
                 
-                for state_message in state:
-                    if state_message.stream.stream_descriptor.name == collection_name:
-                        state_data = state_message.stream.stream_state
-                        if hasattr(state_data, cursor_field):
-                            last_cursor_value = getattr(state_data, cursor_field)
-                        elif hasattr(state_data, '__dict__') and cursor_field in state_data.__dict__:
-                            last_cursor_value = state_data.__dict__[cursor_field]
-                        break
+                # Utiliser la valeur cursor récupérée plus haut
+                last_cursor_value = state_cursor_value
                 
                 if last_cursor_value:
                     parsed_cursor = self._parse_cursor_value(last_cursor_value, cursor_field)
@@ -264,21 +266,24 @@ class SourceMongodbPython(Source):
                 logger.info(f"Incremental sync for '{collection_name}' using cursor field '{cursor_field}' with query: {query}")
                 
                 cursor = collection.find(query).sort(cursor_field, 1)
-                max_cursor_value = None
                 
                 for doc in cursor:
                     doc = JsonEncoder().encode(doc)
                     if config.get("schemaless"):
                         doc = {"data": doc}
                     
+                    # Récupérer la valeur du cursor pour suivre la progression
                     cursor_value = doc.get(cursor_field) if not config.get("schemaless") else doc["data"].get(cursor_field)
                     if cursor_value:
                         if cursor_field == "_id":
                             cursor_value = str(cursor_value)
                         elif isinstance(cursor_value, datetime):
                             cursor_value = cursor_value.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-                        max_cursor_value = cursor_value
+                        # Mettre à jour _collection_last_update au fur et à mesure
+                        
+                        _collection_last_update = cursor_value
                     
+                    doc["_collection_last_update"] = str(_collection_last_update)
                     record = AirbyteRecordMessage(
                         stream=collection_name,
                         data=doc,
@@ -286,20 +291,6 @@ class SourceMongodbPython(Source):
                     )
                     yield AirbyteMessage(type=Type.RECORD, record=record)
                 
-                if max_cursor_value and sync_mode == SyncMode.incremental:
-                    stream_state = AirbyteStateMessage(
-                        type=AirbyteStateType.STREAM,
-                        stream=AirbyteStreamState(
-                            stream_descriptor=StreamDescriptor(name=collection_name),
-                            stream_state=AirbyteStateBlob.parse_obj({
-                                cursor_field: max_cursor_value
-                            }),
-                        ),
-                    )
-                    yield AirbyteMessage(type=Type.STATE, state=stream_state)
-                
-                continue 
-
             else:
 
                 cursor = collection.find(query)
