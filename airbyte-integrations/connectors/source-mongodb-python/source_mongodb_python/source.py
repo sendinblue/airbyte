@@ -112,6 +112,7 @@ class SourceMongodbPython(Source):
                 for key in doc.keys():
                     schema["properties"][key] = {"type": "string"}
         schema["properties"]["_sdc_deleted_at"] = {"type": "string"}
+        schema["properties"]["_collection_last_update"] = {"type": "string"}
         return schema
 
     def _get_incremental_cursor_field(self, configured_stream):
@@ -279,7 +280,6 @@ class SourceMongodbPython(Source):
                             cursor_value = str(cursor_value)
                         elif isinstance(cursor_value, datetime):
                             cursor_value = cursor_value.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-                        # Mettre à jour _collection_last_update au fur et à mesure
                         
                         _collection_last_update = cursor_value
                     
