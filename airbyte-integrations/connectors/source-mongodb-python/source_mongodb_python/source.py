@@ -149,7 +149,8 @@ class SourceMongodbPython(Source):
             stream = configured_stream.stream
             collection_name = stream.name
             collection = db[collection_name]
-            _collection_last_update = Timestamp(int(datetime.now().timestamp()), 0)
+            # Initialiser _collection_last_update au format datetime ISO
+            _collection_last_update = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
             state_collection_last_update = Timestamp(0, 0)
             state_cursor_value = None
             
@@ -159,11 +160,14 @@ class SourceMongodbPython(Source):
                     and state_message.stream.stream_state._collection_last_update
                 ):
                     if has_replica_set:
-                        # Pour replica set, _collection_last_update est un timestamp
-                        timestamp_matches = re.findall(r"\d+", state_message.stream.stream_state._collection_last_update)
-                        if len(timestamp_matches) >= 2:
-                            timestamp_value, increment = map(int, timestamp_matches[:2])
-                            state_collection_last_update = Timestamp(timestamp_value, increment)
+                        try:
+                            dt = datetime.strptime(state_message.stream.stream_state._collection_last_update, "%Y-%m-%dT%H:%M:%S.%fZ")
+                            state_collection_last_update = Timestamp(int(dt.timestamp()), 0)
+                        except ValueError:
+                            timestamp_matches = re.findall(r"\d+", state_message.stream.stream_state._collection_last_update)
+                            if len(timestamp_matches) >= 2:
+                                timestamp_value, increment = map(int, timestamp_matches[:2])
+                                state_collection_last_update = Timestamp(timestamp_value, increment)
                     else:
                         # Pour non-replica set, _collection_last_update est la valeur du cursor
                         state_cursor_value = state_message.stream.stream_state._collection_last_update
@@ -210,13 +214,14 @@ class SourceMongodbPython(Source):
 
                 ids_list = list(set(ids_list))
                 logger.info(f"Sync objects for '{collection_name}' :{len(ids_list)} with deletes: {len(deletes_to_process)}")
-                _collection_last_update = max(recent_dates) if recent_dates else _collection_last_update
+                max_timestamp = max(recent_dates) if recent_dates else Timestamp(int(datetime.now().timestamp()), 0)
+                _collection_last_update = datetime.utcfromtimestamp(max_timestamp.time).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
                 for delete_doc in deletes_to_process:
                     if config.get("schemaless"):
                         _sdc_deleted_at = delete_doc.pop("_sdc_deleted_at")
                         delete_doc = {"data": delete_doc, "_sdc_deleted_at": _sdc_deleted_at}
-                    delete_doc["_collection_last_update"] = str(_collection_last_update)
+                    delete_doc["_collection_last_update"] = _collection_last_update
                     record = AirbyteRecordMessage(
                         stream=collection_name,
                         data=delete_doc,
@@ -234,7 +239,7 @@ class SourceMongodbPython(Source):
                         doc = JsonEncoder().encode(doc)
                         if config.get("schemaless"):
                             doc = {"data": doc}
-                        doc["_collection_last_update"] = str(_collection_last_update)
+                        doc["_collection_last_update"] = _collection_last_update
                         record = AirbyteRecordMessage(
                             stream=collection_name,
                             data=doc,
@@ -250,7 +255,6 @@ class SourceMongodbPython(Source):
                 cursor_field = self._get_incremental_cursor_field(configured_stream)
                 last_cursor_value = None
                 
-                # Utiliser la valeur cursor récupérée plus haut
                 last_cursor_value = state_cursor_value
                 
                 if last_cursor_value:
@@ -283,7 +287,7 @@ class SourceMongodbPython(Source):
                         
                         _collection_last_update = cursor_value
                     
-                    doc["_collection_last_update"] = str(_collection_last_update)
+                    doc["_collection_last_update"] = _collection_last_update
                     record = AirbyteRecordMessage(
                         stream=collection_name,
                         data=doc,
@@ -298,7 +302,7 @@ class SourceMongodbPython(Source):
                     doc = JsonEncoder().encode(doc)
                     if config.get("schemaless"):
                         doc = {"data": doc}
-                    doc["_collection_last_update"] = str(_collection_last_update)
+                    doc["_collection_last_update"] = _collection_last_update
                     record = AirbyteRecordMessage(
                         stream=collection_name,
                         data=doc,
@@ -311,7 +315,7 @@ class SourceMongodbPython(Source):
                     type=AirbyteStateType.STREAM,
                     stream=AirbyteStreamState(
                         stream_descriptor=StreamDescriptor(name=collection_name),
-                        stream_state=AirbyteStateBlob.parse_obj({"_collection_last_update": str(_collection_last_update)}),
+                        stream_state=AirbyteStateBlob.parse_obj({"_collection_last_update": _collection_last_update}),
                     ),
                 )
                 yield AirbyteMessage(type=Type.STATE, state=stream_state)
