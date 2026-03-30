@@ -299,3 +299,96 @@ class TestTwilioNestedStream:
         records = read_from_stream(TEST_CONFIG, stream_name, SyncMode.full_refresh).records
 
         assert len(records) == expected_count
+
+
+class TestMessagingPricingStreams:
+    """Tests for the messaging_pricing_countries and messaging_pricing streams."""
+
+    PRICING_BASE = "https://pricing.twilio.com/v1"
+
+    def test_messaging_pricing_countries_full_refresh(self, requests_mock):
+        """Test that messaging_pricing_countries stream correctly lists countries."""
+        countries_json = {
+            "countries": [
+                {"country": "France", "iso_country": "FR", "url": "https://pricing.twilio.com/v1/Messaging/Countries/FR"},
+                {"country": "Germany", "iso_country": "DE", "url": "https://pricing.twilio.com/v1/Messaging/Countries/DE"},
+            ]
+        }
+        requests_mock.get(f"{self.PRICING_BASE}/Messaging/Countries", json=countries_json, status_code=200)
+
+        records = read_from_stream(TEST_CONFIG, "messaging_pricing_countries", SyncMode.full_refresh).records
+
+        assert len(records) == 2
+        assert records[0].record.data["iso_country"] == "FR"
+        assert records[1].record.data["iso_country"] == "DE"
+
+    def test_messaging_pricing_substream(self, requests_mock):
+        """Test that messaging_pricing stream correctly fetches pricing details per country."""
+        # Parent stream: list of countries
+        countries_json = {
+            "countries": [
+                {"country": "France", "iso_country": "FR", "url": "https://pricing.twilio.com/v1/Messaging/Countries/FR"},
+            ]
+        }
+        requests_mock.get(f"{self.PRICING_BASE}/Messaging/Countries", json=countries_json, status_code=200)
+
+        # Child stream: pricing details for France
+        pricing_fr_json = {
+            "country": "France",
+            "iso_country": "FR",
+            "price_unit": "USD",
+            "outbound_sms_prices": [
+                {
+                    "mcc": "208",
+                    "mnc": "01",
+                    "carrier": "Orange France",
+                    "prices": [
+                        {"number_type": "mobile", "base_price": "0.0750", "current_price": "0.0750"}
+                    ]
+                }
+            ],
+            "inbound_sms_prices": [
+                {"number_type": "local", "base_price": "0.0075", "current_price": "0.0075"}
+            ],
+            "url": "https://pricing.twilio.com/v1/Messaging/Countries/FR"
+        }
+        requests_mock.get(f"{self.PRICING_BASE}/Messaging/Countries/FR", json=pricing_fr_json, status_code=200)
+
+        records = read_from_stream(TEST_CONFIG, "messaging_pricing", SyncMode.full_refresh).records
+
+        assert len(records) == 1
+        assert records[0].record.data["iso_country"] == "FR"
+        assert records[0].record.data["price_unit"] == "USD"
+        assert len(records[0].record.data["outbound_sms_prices"]) == 1
+        assert records[0].record.data["outbound_sms_prices"][0]["carrier"] == "Orange France"
+
+    def test_messaging_pricing_pagination(self, requests_mock):
+        """Test that messaging_pricing_countries stream handles pagination correctly."""
+        # First page
+        countries_page_1_json = {
+            "countries": [
+                {"country": "France", "iso_country": "FR", "url": "https://pricing.twilio.com/v1/Messaging/Countries/FR"},
+            ],
+            "meta": {
+                "next_page_url": "https://pricing.twilio.com/v1/Messaging/Countries?PageSize=1000&Page=2&PageToken=PAAD42931b949c0dedce94b2f93847fdcf95"
+            }
+        }
+        requests_mock.get(f"{self.PRICING_BASE}/Messaging/Countries", json=countries_page_1_json, status_code=200)
+
+        # Second page
+        countries_page_2_json = {
+            "countries": [
+                {"country": "Germany", "iso_country": "DE", "url": "https://pricing.twilio.com/v1/Messaging/Countries/DE"},
+            ]
+        }
+        requests_mock.get(
+            f"{self.PRICING_BASE}/Messaging/Countries?PageSize=1000&Page=2&PageToken=PAAD42931b949c0dedce94b2f93847fdcf95",
+            json=countries_page_2_json,
+            status_code=200,
+        )
+
+        records = read_from_stream(TEST_CONFIG, "messaging_pricing_countries", SyncMode.full_refresh).records
+
+        assert len(records) == 2
+        assert records[0].record.data["iso_country"] == "FR"
+        assert records[1].record.data["iso_country"] == "DE"

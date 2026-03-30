@@ -5,6 +5,7 @@ data:
   allowedHosts:
     hosts:
       - api.twilio.com
+      - pricing.twilio.com
       - monitor.twilio.com
       - chat.twilio.com
       - trunking.twilio.com

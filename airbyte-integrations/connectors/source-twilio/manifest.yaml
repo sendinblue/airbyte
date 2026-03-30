@@ -5,7 +5,7 @@ type: DeclarativeSource
 check:
   type: CheckStream
   stream_names:
-    - accounts
+    - messaging_pricing_countries
 
 definitions:
   base_requester:
@@ -784,6 +784,70 @@ definitions:
       name: verify_services
       data_field: services
 
+  messaging_pricing_countries_stream:
+    type: DeclarativeStream
+    primary_key:
+      - iso_country
+    retriever:
+      type: SimpleRetriever
+      requester:
+        $ref: "#/definitions/base_requester"
+        url: https://pricing.twilio.com/v1/Messaging/Countries
+        http_method: GET
+      record_selector:
+        type: RecordSelector
+        extractor:
+          type: DpathExtractor
+          field_path:
+            - countries
+      paginator:
+        type: DefaultPaginator
+        page_token_option:
+          type: RequestPath
+        page_size_option:
+          type: RequestOption
+          field_name: PageSize
+          inject_into: request_parameter
+        pagination_strategy:
+          type: CursorPagination
+          page_size: 1000
+          cursor_value: '{{ response.get("meta", {}).get("next_page_url") or response.get("next_page_uri") }}'
+    schema_loader:
+      type: InlineSchemaLoader
+      schema:
+        $ref: "#/schemas/messaging_pricing_countries"
+    $parameters:
+      name: messaging_pricing_countries
+
+  messaging_pricing_stream:
+    type: DeclarativeStream
+    primary_key:
+      - iso_country
+    retriever:
+      type: SimpleRetriever
+      requester:
+        $ref: "#/definitions/base_requester"
+        url: "https://pricing.twilio.com/v1/Messaging/Countries/{{ stream_partition['iso_country'] }}"
+        http_method: GET
+      record_selector:
+        type: RecordSelector
+        extractor:
+          type: DpathExtractor
+          field_path: []
+      partition_router:
+        type: SubstreamPartitionRouter
+        parent_stream_configs:
+          - type: ParentStreamConfig
+            stream: "#/definitions/messaging_pricing_countries_stream"
+            parent_key: iso_country
+            partition_field: iso_country
+    schema_loader:
+      type: InlineSchemaLoader
+      schema:
+        $ref: "#/schemas/messaging_pricing"
+    $parameters:
+      name: messaging_pricing
+
 streams:
   - $ref: "#/definitions/accounts_stream"
   - $ref: "#/definitions/addresses_stream"
@@ -819,6 +883,8 @@ streams:
   - $ref: "#/definitions/user_conversations_stream"
   - $ref: "#/definitions/users_stream"
   - $ref: "#/definitions/verify_services_stream"
+  - $ref: "#/definitions/messaging_pricing_countries_stream"
+  - $ref: "#/definitions/messaging_pricing_stream"
 
 concurrency_level:
   type: ConcurrencyLevel
@@ -4318,3 +4384,115 @@ schemas:
             type:
               - "null"
               - string
+
+  messaging_pricing_countries:
+    type: object
+    properties:
+      country:
+        description: The name of the country
+        type:
+          - "null"
+          - string
+      iso_country:
+        description: The ISO country code
+        type:
+          - "null"
+          - string
+      url:
+        description: The URL of the pricing details for this country
+        type:
+          - "null"
+          - string
+
+  messaging_pricing:
+    type: object
+    properties:
+      country:
+        description: The name of the country
+        type:
+          - "null"
+          - string
+      iso_country:
+        description: The ISO country code
+        type:
+          - "null"
+          - string
+      price_unit:
+        description: The currency unit for the prices
+        type:
+          - "null"
+          - string
+      outbound_sms_prices:
+        description: List of outbound SMS prices by carrier
+        type:
+          - "null"
+          - array
+        items:
+          type: object
+          properties:
+            mcc:
+              description: Mobile Country Code
+              type:
+                - "null"
+                - string
+            mnc:
+              description: Mobile Network Code
+              type:
+                - "null"
+                - string
+            carrier:
+              description: Carrier name
+              type:
+                - "null"
+                - string
+            prices:
+              description: List of prices by number type
+              type:
+                - "null"
+                - array
+              items:
+                type: object
+                properties:
+                  number_type:
+                    description: Type of phone number
+                    type:
+                      - "null"
+                      - string
+                  base_price:
+                    description: Base price for sending SMS
+                    type:
+                      - "null"
+                      - string
+                  current_price:
+                    description: Current price for sending SMS
+                    type:
+                      - "null"
+                      - string
+      inbound_sms_prices:
+        description: List of inbound SMS prices by number type
+        type:
+          - "null"
+          - array
+        items:
+          type: object
+          properties:
+            number_type:
+              description: Type of phone number
+              type:
+                - "null"
+                - string
+            base_price:
+              description: Base price for receiving SMS
+              type:
+                - "null"
+                - string
+            current_price:
+              description: Current price for receiving SMS
+              type:
+                - "null"
+                - string
+      url:
+        description: The URL of the pricing resource
+        type:
+          - "null"
+          - string
